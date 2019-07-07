@@ -1,0 +1,8 @@
+{
+  "name": "Pomodoro Server",
+  "version": "1.0.0",
+  "description": "Pomodoro Server",
+  "main": "index.js",
+  "author": "Min Thu Aung",
+  "license": "MIT"
+}
