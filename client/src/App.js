@@ -8,7 +8,7 @@ import SessionSetter from './components/SessionSetter';
 import Timer from './components/Timer';
 
 import {Row} from './components/styled-elements';
-import {GlobalStyle, theme} from './theme';
+import {theme} from './theme';
 
 
 function App() {
@@ -102,7 +102,6 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div>
-        <GlobalStyle/>
         <Row>
           <Timer timeLeft={timeLeft} reset={reset} startStop={toggleIsRunning} timerLabel={_getTimerLabel()}/>
         </Row>
