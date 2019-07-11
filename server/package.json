@@ -1,8 +1,14 @@
 {
-  "name": "Pomodoro Server",
+  "name": "pomodoro-server",
   "version": "1.0.0",
   "description": "Pomodoro Server",
-  "main": "index.js",
+  "main": "server.js",
   "author": "Min Thu Aung",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.6.4"
+  }
 }
