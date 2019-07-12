@@ -25,4 +25,8 @@ tasks.statics.getTasksOfUser = async function (userId) {
   return this.find({userId}).exec();
 };
 
+tasks.statics.addTask = async function (obj) {
+  await new this(obj).save();
+};
+
 module.exports = mongoose.model('Tasks', tasks);
