@@ -21,9 +21,7 @@ const tasks = new Schema({
   }
 });
 
-const query = mongoose.Query;
-
-tasks.statics.getTasksOfUser = function (userId) {
+tasks.statics.getTasksOfUser = async function (userId) {
   return this.find({userId}).exec();
 };
 
