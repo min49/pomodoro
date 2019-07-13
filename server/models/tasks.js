@@ -4,20 +4,20 @@ const Schema = mongoose.Schema;
 const tasks = new Schema({
   userId: {
     type: String, // TODO: Schema.Types.ObjectId,
-    require: true
+    required: true
   },
   name: {
     type: String,
     max: 50,
-    require: true
+    required: true
   },
   focusTime: {
     type: Number,
-    require: true
+    required: true
   },
   relaxTime: {
     type: Number,
-    require: true
+    required: true
   }
 });
 
