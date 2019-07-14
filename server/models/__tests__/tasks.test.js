@@ -1,5 +1,6 @@
 const TestDbHelper = require('./testUtils/testDbHelper');
 const Tasks = require('../tasks');
+const Users = require('../users');
 
 describe('Tasks', () => {
   const testDbHelper = new TestDbHelper();
@@ -22,37 +23,62 @@ describe('Tasks', () => {
     await TestDbHelper.cleanup();
   });
 
-  test('getTasksOfUser return all tasks of the user', async () => {
+  test('getTasksOfUser() returns all tasks of the user', async () => {
     expect.assertions(1);
 
-    const {task1, task2, task3} = await createSampleTasksInDb();
+    const {task1} = await createSampleTasks();
+
     const tasks = await Tasks.getTasksOfUser(task1.userId);
 
     expect(tasks.length).toEqual(3);
   });
 
-  test('create a new task for the user', async () => {
-    await Tasks.addTask(TASKS[0]);
+  test('add() creates a new task for the user', async () => {
+    const {user0} = await createSampleUsers();
+    const newTask = {
+      ...TASKS[0],
+      userId: user0._id
+    };
+
+    await Tasks.add(newTask);
 
     const found = await Tasks.find({});
     expect(found.length).toEqual(1);
 
-    for (let p in TASKS[0]) {
-      if (TASKS[0].hasOwnProperty(p)) {
-        expect(TASKS[0][p]).toEqual(found[0][p]);
+    for (let p in newTask) {
+      if (newTask.hasOwnProperty(p)) {
+        expect(newTask[p]).toEqual(found[0][p]);
       }
     }
   });
 });
 
-const TASKS = [
-  {userId: 'abc', name: 'Work', focusTime: 25, relaxTime: 5},
-  {userId: 'abc', name: 'Learn', focusTime: 30, relaxTime: 4},
-  {userId: 'abc', name: 'Nap', focusTime: 35, relaxTime: 6},
-  {userId: 'def', name: 'Sing', focusTime: 20, relaxTime: 5}
+const USERS = [
+  {username: 'abc', password: 'pass'},
+  {username: 'def', password: 'word'}
 ];
 
-async function createSampleTasksInDb() {
+const TASKS = [
+  {name: 'Work', focusTime: 25, relaxTime: 5},
+  {name: 'Learn', focusTime: 30, relaxTime: 4},
+  {name: 'Nap', focusTime: 35, relaxTime: 6},
+  {name: 'Sing', focusTime: 20, relaxTime: 5}
+];
+
+async function createSampleUsers() {
+  const user0 = await new Users(USERS[0]).save();
+  const user1 = await new Users(USERS[1]).save();
+  return {user0, user1};
+}
+
+async function createSampleTasks() {
+  const {user0, user1} = await createSampleUsers();
+
+  TASKS[0].userId = user0._id;
+  TASKS[1].userId = user0._id;
+  TASKS[2].userId = user0._id;
+  TASKS[3].userId = user1._id;
+
   const task0 = await new Tasks(TASKS[0]).save();
   const task1 = await new Tasks(TASKS[1]).save();
   const task2 = await new Tasks(TASKS[2]).save();

@@ -12,17 +12,15 @@ module.exports = function (app) {
   });
 
   passport.deserializeUser((id, callback) => {
-    callback(null, Users.deserializeForPassport(id));
+    Users.deserializeForPassport(id)
+      .then(user => callback(null, user));
   });
 
   passport.use(new LocalStrategy(
-    async function (username, password, done) {
-      try {
-        const user = await Users.login(username, password);
-        return done(null, user);
-      } catch (err) {
-        return done(err);
-      }
+    function (username, password, done) {
+      Users.login(username, password)
+        .then(user => done(null, user))
+        .catch(err => done(err));
     }
   ));
 };

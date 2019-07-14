@@ -18,7 +18,7 @@ users.statics.serializeForPassport = function (user) {
   return user._id;
 };
 
-users.statics.deserializeForPassport = async function (id) {
+users.statics.deserializeForPassport = function (id) {
   return this.findById(id);
 };
 

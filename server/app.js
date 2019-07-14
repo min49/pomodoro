@@ -11,13 +11,15 @@ const auth = require('./auth');
 
 const app = express();
 dbHelper.connect();
-auth(app);
 
+// app.use(session(..)) must be called before passport
 app.use(session({
   secret: config.SESSION_SECRET,
   resave: true,
   saveUninitialized: true
 }));
+auth(app);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 

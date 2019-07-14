@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const tasks = new Schema({
   userId: {
-    type: String, // TODO: Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     required: true
   },
   name: {
@@ -21,12 +21,12 @@ const tasks = new Schema({
   }
 });
 
-tasks.statics.getTasksOfUser = async function (userId) {
-  return this.find({userId}).exec();
+tasks.statics.getTasksOfUser = function (userId) {
+  return this.find({userId});
 };
 
-tasks.statics.addTask = async function (obj) {
-  await new this(obj).save();
+tasks.statics.add = function (taskObj) {
+  return new this(taskObj).save();
 };
 
 module.exports = mongoose.model('Tasks', tasks);
