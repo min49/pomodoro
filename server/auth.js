@@ -1,9 +1,18 @@
+const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 
+const config = require('./config');
 const Users = require('./models/users');
 
 module.exports = function (app) {
+  // app.use(session(..)) must be called before passport
+  app.use(session({
+    secret: config.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true
+  }));
+
   app.use(passport.initialize());
   app.use(passport.session());
 
