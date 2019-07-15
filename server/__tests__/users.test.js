@@ -1,9 +1,9 @@
 jest.mock('../dbHelper');
 
-const TestDbHelper = require('../models/__tests__/testUtils/testDbHelper');
 const request = require('supertest');
 const app = require('../app');
-const Users = require('../models/users');
+const TestDbHelper = require('../models/__tests__/testUtils/testDbHelper');
+const {setupTestData} = require('./testUtils/helper');
 
 const testDbHelper = new TestDbHelper();
 
@@ -26,18 +26,18 @@ afterEach(async () => {
 });
 
 test('User login with correct username and password', async () => {
-  const mockUser = await createMockUserInDb();
+  await setupTestData(DATA);
 
   const res = await request(app)
     .post(`/api/pomodoro/login`)
-    .send(mockUser);
+    .send({username: 'user', password: 'pass'});
 
   expect(res.status).toEqual(200);
   expect(res.body).toEqual({status: 'logged in'});
 });
 
 test('User login with incorrect username and password', async () => {
-  await createMockUserInDb();
+  await setupTestData(DATA);
 
   const res = await request(app)
     .post(`/api/pomodoro/login`)
@@ -46,9 +46,6 @@ test('User login with incorrect username and password', async () => {
   expect(res.status).toEqual(302);
 });
 
-async function createMockUserInDb() {
-  const mockUser = {username: 'user', password: 'pass'};
-  await new Users(mockUser).save();
-
-  return mockUser;
-}
+const DATA = [
+  {username: 'user', password: 'pass', tasks: []}
+];
