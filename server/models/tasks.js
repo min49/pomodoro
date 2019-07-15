@@ -21,10 +21,12 @@ const tasks = new Schema({
   }
 });
 
+// TODO: error handle when userId is not ObjectId
 tasks.statics.getTasksOfUser = function (userId) {
   return this.find({userId});
 };
 
+// TODO: error handle save()
 tasks.statics.add = function (taskObj) {
   return new this(taskObj).save();
 };

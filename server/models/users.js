@@ -18,10 +18,12 @@ users.statics.serializeForPassport = function (user) {
   return user._id;
 };
 
+// TODO: Error Handle with id is not ObjectId
 users.statics.deserializeForPassport = function (id) {
   return this.findById(id);
 };
 
+// TODO: Error Handle findOne()
 users.statics.login = async function (username, password) {
   const user = await this.findOne({username});
   if (!user) {
