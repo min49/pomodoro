@@ -67,6 +67,26 @@ describe('Sessions API calls', () => {
     expect(sessionInDb.duration).toEqual(beforeDuration - testBody.remainingTime);
     expect(sessionInDb.isCompleted).toEqual(false);
   });
+
+  test('finish a session', async () => {
+    await setupTestData(DATA);
+    const authenticatedRequest = await login(
+      {username: 'abc', password: 'pass'});
+
+    const sessionId = DATA[0].tasks[2].sessions[1].id;
+    const beforeDuration = DATA[0].tasks[2].sessions[1].duration;
+    const testBody = {
+      sessionId,
+    };
+    const res = await authenticatedRequest.patch(`/api/pomodoro/sessions/finish`)
+      .send(testBody);
+    expect(res.status).toEqual(200);
+
+    const sessionInDb = await Sessions.findById(sessionId);
+    expect(sessionInDb.taskId.toString()).toEqual(DATA[0].tasks[2].id);
+    expect(sessionInDb.duration).toEqual(beforeDuration);
+    expect(sessionInDb.isCompleted).toEqual(true);
+  });
 });
 
 

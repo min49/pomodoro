@@ -29,3 +29,14 @@ exports.stopSession = async function (req, res) {
   await session.save();
   res.status(200).json(session);
 };
+
+exports.finishSession = async function (req, res) {
+  const
+    userId = req.user.id,
+    {sessionId} = req.body;
+
+  const session = await Sessions.getSession(sessionId, userId);
+  session.isCompleted = true;
+  await session.save();
+  res.status(200).json(session);
+};
