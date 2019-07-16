@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
+// TODO: userId, name combination should be unique
 const tasks = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
@@ -29,6 +30,10 @@ tasks.statics.getTasksOfUser = function (userId) {
 // TODO: error handle save()
 tasks.statics.add = function (taskObj) {
   return new this(taskObj).save();
+};
+
+tasks.statics.getId = function (userId, taskName) {
+  return this.findOne({userId, name: taskName});
 };
 
 module.exports = mongoose.model('Tasks', tasks);

@@ -4,9 +4,12 @@ const passport = require('passport');
 
 const tasksController = require('../controllers/tasks.controller');
 const usersController = require('../controllers/users.controller');
+const sessionsController = require('../controllers/sessions.controller');
 
 router.get('/tasks', ensureAuthenticated, tasksController.getTasks);
 router.post('/tasks/new', ensureAuthenticated, tasksController.addTask);
+
+router.post('/sessions/start', ensureAuthenticated, sessionsController.addSession);
 
 router.post('/login',
   passport.authenticate('local', {failureRedirect: '/'}),
