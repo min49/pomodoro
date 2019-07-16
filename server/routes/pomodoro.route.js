@@ -10,6 +10,7 @@ router.get('/tasks', ensureAuthenticated, tasksController.getTasks);
 router.post('/tasks/new', ensureAuthenticated, tasksController.addTask);
 
 router.post('/sessions/start', ensureAuthenticated, sessionsController.addSession);
+router.patch('/sessions/stop', ensureAuthenticated, sessionsController.stopSession);
 
 router.post('/login',
   passport.authenticate('local', {failureRedirect: '/'}),

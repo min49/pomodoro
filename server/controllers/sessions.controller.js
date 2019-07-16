@@ -3,7 +3,7 @@ const Tasks = require('../models/tasks');
 
 exports.addSession = async function (req, res) {
   const
-    userId = req.user._id,
+    userId = req.user.id,
     {taskName, duration} = req.body,
     taskId = await Tasks.getId(userId, taskName),
     startDatetime = new Date(),
@@ -17,4 +17,15 @@ exports.addSession = async function (req, res) {
     userId
   });
   res.status(201).json(savedSession);
+};
+
+exports.stopSession = async function (req, res) {
+  const
+    userId = req.user.id,
+    {sessionId, remainingTime} = req.body;
+
+  const session = await Sessions.getSession(sessionId, userId);
+  session.duration -= remainingTime;
+  await session.save();
+  res.status(200).json(session);
 };

@@ -28,4 +28,8 @@ sessions.statics.add = function (sessionObj) {
   return new this(sessionObj).save();
 };
 
+sessions.statics.getSession = function (sessionId, userId) {
+  return this.findOne({_id: sessionId, userId});
+};
+
 module.exports = mongoose.model('Sessions', sessions);
