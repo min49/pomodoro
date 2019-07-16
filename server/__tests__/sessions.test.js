@@ -43,6 +43,8 @@ describe('Sessions API calls', () => {
     expect(res.body['duration']).toEqual(testSession['duration']);
     const startDatetime = new Date(res.body['startDatetime']);
     expect(Math.abs(startDatetime - requestDatetime)).toBeLessThan(3000);
+    expect(res.body).toHaveProperty('_id');
+  });
   });
 });
 
