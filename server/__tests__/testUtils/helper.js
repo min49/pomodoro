@@ -11,13 +11,13 @@ exports.setupTestData = async function (data) {
     for (let t of tasks) {
       const {name, focusTime, relaxTime, sessions} = t;
       const task = await new Tasks(
-        {name, focusTime, relaxTime, userId: user._id}).save();
+        {name, focusTime, relaxTime, userId: user.id}).save();
       t.id = task.id;
 
       if (sessions) {
         for (let s of sessions) {
           const session = await new Sessions(
-            {...s, taskId: task._id, userId: user._id}).save();
+            {...s, taskId: task.id, userId: user.id}).save();
           s.id = session.id;
         }
       }
