@@ -24,6 +24,12 @@ const sessions = new Schema({
   }
 });
 
+// TODO: error handle DB calls
+
+sessions.statics.getSessionsOfUser = function (userId) {
+  return this.find({userId});
+};
+
 sessions.statics.add = function (sessionObj) {
   return new this(sessionObj).save();
 };

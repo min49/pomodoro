@@ -1,6 +1,12 @@
 const Sessions = require('../models/sessions');
 const Tasks = require('../models/tasks');
 
+exports.getSessions = async function (req, res) {
+  const userId = req.user.id;
+  const sessions = await Sessions.getSessionsOfUser(userId);
+  res.json(sessions);
+};
+
 exports.addSession = async function (req, res) {
   const
     userId = req.user.id,

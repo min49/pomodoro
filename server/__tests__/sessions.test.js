@@ -87,6 +87,15 @@ describe('Sessions API calls', () => {
     expect(sessionInDb.duration).toEqual(beforeDuration);
     expect(sessionInDb.isCompleted).toEqual(true);
   });
+
+  test('get all sessions by user', async () => {
+    await setupTestData(DATA);
+    const authenticatedRequest = await login(
+      {username: 'abc', password: 'pass'});
+
+    const res = await authenticatedRequest.get(`/api/pomodoro/sessions`);
+    expect(res.body.length).toEqual(2);
+  });
 });
 
 
