@@ -15,7 +15,7 @@ const users = new Schema({
 });
 
 users.statics.serializeForPassport = function (user) {
-  return user._id;
+  return user.id;
 };
 
 // TODO: Error Handle with id is not ObjectId
