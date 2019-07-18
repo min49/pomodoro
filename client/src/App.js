@@ -1,5 +1,7 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {ThemeProvider} from 'styled-components';
+import axios from 'axios';
+import {BrowserRouter as Router, Route, Link, Redirect} from 'react-router-dom';
 
 import useInterval from './customHooks/useInterval';
 
@@ -10,8 +12,13 @@ import Timer from './components/Timer';
 import {Row} from './components/styled-elements';
 import {theme} from './theme';
 
+const LOGIN_STATES = {
+  initial: 'initial',
+  logged_in: 'logged_in',
+  not_logged_in: 'not_logged_in'
+};
 
-function App() {
+function App({currentUser}) {
   const [breakLength, setBreakLength] = useState(_minuteToSeconds(5));
   const [sessionLength, setSessionLength] = useState(_minuteToSeconds(25));
   const [timeLeft, setTimeLeft] = useState(_minuteToSeconds(25));
@@ -103,6 +110,13 @@ function App() {
     <ThemeProvider theme={theme}>
       <div>
         <Row>
+          {console.log(`currentUser in App: ${currentUser}`)}
+          {currentUser
+            ? <div>Hello {currentUser}!</div>
+            : <Link to="/login">Log in</Link>
+          }
+        </Row>
+        <Row>
           <Timer timeLeft={timeLeft} reset={reset} startStop={toggleIsRunning} timerLabel={_getTimerLabel()}/>
         </Row>
         <Row>
@@ -116,5 +130,87 @@ function App() {
   );
 }
 
+function AppWrapper({initialUser}) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+  const [loginState, setLoginState] = useState(LOGIN_STATES.initial);
 
-export default App;
+  useEffect(() => {
+    console.log(`initialUser in AppWrapper: ${initialUser}`);
+    console.log(`Login state in AppWrapper: ${loginState}`);
+    if (loginState === LOGIN_STATES.initial) {
+      if (initialUser) {
+        setIsAuthenticated(true);
+        setCurrentUser(initialUser);
+      } else {
+        setLoginState(LOGIN_STATES.not_logged_in);
+      }
+    } else if (loginState === LOGIN_STATES.not_logged_in) {
+      if (isAuthenticated) {
+        setLoginState(LOGIN_STATES.logged_in);
+      }
+    }
+  }, [initialUser, isAuthenticated]);
+
+  const authenticate = (username, password) => {
+    console.log('in authenticate');
+    axios.post(
+      'http://localhost:3003/api/pomodoro/login',
+      {
+        username,
+        password
+      },
+      {withCredentials: true}
+    ).then((res) => {
+      console.log(res.body);
+      if (res.status === 200) {
+        console.log(`log in success. Setting IsAuthenticated true`);
+        setIsAuthenticated(true);
+        setCurrentUser(username);
+      }
+    }).catch(err => {
+      if (err && err.response && err.response.status === 401) {
+        console.log('Incorrect Username or password');
+      } else {
+        console.log(err);
+      }
+    });
+  };
+
+  return (
+    <Router>
+      <Route exact path="/" render={props => <App {...props} currentUser={currentUser}/>}/>
+      <Route path="/login" render={props => <LoginComponent {...props} isAuthenticated={isAuthenticated}
+                                                            authenticate={authenticate}/>}/>
+    </Router>
+  );
+}
+
+function LoginComponent({isAuthenticated, authenticate}) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const login = (e) => {
+    authenticate(username, password); //, loginSuccessful);
+    e.preventDefault();
+  };
+
+  return (
+    <div>
+      {
+        isAuthenticated
+          ? <Redirect to='/'/>
+          : (<form>
+            <label htmlFor="username">Username</label>
+            <input type="text" id="username" onChange={e => setUsername(e.target.value)} value={username}/>
+
+            <label htmlFor="password">Password</label>
+            <input type="password" id="password" onChange={e => setPassword(e.target.value)} value={password}/>
+            <button onClick={login}>Log in</button>
+          </form>)
+      }
+    </div>
+  )
+}
+
+export default AppWrapper;
