@@ -14,8 +14,10 @@ router.post('/sessions/start', ensureAuthenticated, sessionsController.addSessio
 router.patch('/sessions/stop', ensureAuthenticated, sessionsController.stopSession);
 router.patch('/sessions/finish', ensureAuthenticated, sessionsController.finishSession);
 
+router.get('/users/current', usersController.getLoggedInUser);
+
 router.post('/login',
-  passport.authenticate('local', {failureRedirect: '/'}),
+  passport.authenticate('local'),
   usersController.loginSuccess);
 
 function ensureAuthenticated(req, res, next) {
