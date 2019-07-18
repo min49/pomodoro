@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState} from 'react';
 import {ThemeProvider} from 'styled-components';
 import axios from 'axios';
 import {BrowserRouter as Router, Route, Link, Redirect} from 'react-router-dom';
@@ -11,12 +11,6 @@ import Timer from './components/Timer';
 
 import {Row} from './components/styled-elements';
 import {theme} from './theme';
-
-const LOGIN_STATES = {
-  initial: 'initial',
-  logged_in: 'logged_in',
-  not_logged_in: 'not_logged_in'
-};
 
 function App({currentUser}) {
   const [breakLength, setBreakLength] = useState(_minuteToSeconds(5));
@@ -131,28 +125,10 @@ function App({currentUser}) {
 }
 
 function AppWrapper({initialUser}) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState('');
-  const [loginState, setLoginState] = useState(LOGIN_STATES.initial);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!initialUser);
+  const [currentUser, setCurrentUser] = useState(initialUser ? initialUser : '');
 
-  useEffect(() => {
-    console.log(`initialUser in AppWrapper: ${initialUser}`);
-    console.log(`Login state in AppWrapper: ${loginState}`);
-    if (loginState === LOGIN_STATES.initial) {
-      if (initialUser) {
-        setIsAuthenticated(true);
-        setCurrentUser(initialUser);
-      } else {
-        setLoginState(LOGIN_STATES.not_logged_in);
-      }
-    } else if (loginState === LOGIN_STATES.not_logged_in) {
-      if (isAuthenticated) {
-        setLoginState(LOGIN_STATES.logged_in);
-      }
-    }
-  }, [initialUser, isAuthenticated]);
-
-  const authenticate = (username, password) => {
+  function authenticate(username, password) {
     console.log('in authenticate');
     axios.post(
       'http://localhost:3003/api/pomodoro/login',
@@ -162,11 +138,8 @@ function AppWrapper({initialUser}) {
       },
       {withCredentials: true}
     ).then((res) => {
-      console.log(res.body);
       if (res.status === 200) {
-        console.log(`log in success. Setting IsAuthenticated true`);
-        setIsAuthenticated(true);
-        setCurrentUser(username);
+        loginSuccessful(username);
       }
     }).catch(err => {
       if (err && err.response && err.response.status === 401) {
@@ -175,7 +148,13 @@ function AppWrapper({initialUser}) {
         console.log(err);
       }
     });
-  };
+  }
+
+  function loginSuccessful(username) {
+    console.log(`log in success. Setting IsAuthenticated true`);
+    setIsAuthenticated(true);
+    setCurrentUser(username);
+  }
 
   return (
     <Router>
