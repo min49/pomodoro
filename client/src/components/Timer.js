@@ -4,14 +4,40 @@ import {Button, TimeDisplay, TimerLabel, TimerWrapper} from "./styled-elements";
 import useInterval from '../customHooks/useInterval';
 
 function Timer(props) {
-  const [breakLength, setBreakLength] = useState(_minuteToSeconds(5));
-  const [sessionLength, setSessionLength] = useState(_minuteToSeconds(25));
-  const [timeLeft, setTimeLeft] = useState(_minuteToSeconds(25));
+  const {tasks} = props;
+
+  const [currentTaskName, setCurrentTaskName] = useState('');
+  const [sessionLength, setSessionLength] = useState(25);
+  const [breakLength, setBreakLength] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const beepRef = useRef();
 
-  const {tasks} = props;
+  useInterval(_tick, isRunning ? 1000 : null);
+
+  if (currentTaskName === '' && tasks[0] !== undefined) {
+    setCurrentTaskName(tasks[0].name);
+    setSessionLength(tasks[0].focusTime);
+    setBreakLength(tasks[0].relaxTime);
+    setTimeLeft(tasks[0].focusTime);
+  }
+
+  function _handleTaskChange(e) {
+    const newTaskName = e.target.value;
+    const newTask = tasks.find(t => t.name === newTaskName);
+
+    if (newTask) {
+      setIsRunning(false);
+
+      const {name, focusTime, relaxTime} = newTask;
+      console.log(`${name} , ${focusTime} , ${relaxTime}`);
+      setCurrentTaskName(name);
+      setSessionLength(focusTime);
+      setBreakLength(relaxTime);
+      setTimeLeft(focusTime);
+    }
+  }
 
   function _getMinuteSecondString(seconds) {
     const minute = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -21,22 +47,6 @@ function Timer(props) {
 
   function _toggleIsRunning() {
     setIsRunning(!isRunning);
-  }
-
-  function _reset() {
-    _stopBeep();
-    setTimeLeft(_minuteToSeconds(25));
-    setBreakLength(_minuteToSeconds(5));
-    setSessionLength(_minuteToSeconds(25));
-    setIsRunning(false);
-    setIsBreak(false);
-  }
-
-  useInterval(_tick, isRunning ? 1000 : null);
-
-
-  function _minuteToSeconds(minute) {
-    return minute * 60;
   }
 
   function _tick() {
@@ -73,15 +83,14 @@ function Timer(props) {
       {
         tasks.length === 0
           ? null
-          : <select>
-            {tasks.map(t => <option value={t.name}>{t.name}</option>)}
+          : <select style={{display: 'block', margin: 'auto'}} onChange={_handleTaskChange}>
+            {tasks.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
           </select>
       }
       <TimerLabel id="timer-label">{_getTimerLabel()}</TimerLabel>
 
       <TimeDisplay id="time-left">{_getMinuteSecondString(timeLeft)}</TimeDisplay>
-      <Button primary id="start_stop" onClick={_toggleIsRunning}>Start/Stop</Button>
-      <Button id="reset" onClick={_reset}>Reset</Button>
+      <Button primary id="start_stop" onClick={_toggleIsRunning}>{isRunning ? 'Stop' : 'Start'}</Button>
       <audio id="beep" ref={beepRef}
              src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
     </TimerWrapper>
