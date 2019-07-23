@@ -1,12 +1,14 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom';
+import axios from 'axios';
+
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import axios from 'axios';
+import config from './config';
 
 let initialUser = undefined;
-axios.get('http://localhost:3003/api/pomodoro/users/current', {withCredentials: true})
+axios.get(`${config.API_ROOT}/users/current`, {withCredentials: true})
   .then((res) => {
     if (res.data.isLoggedIn === true) {
       console.log(`index.js setting initialUser to ${res.data.username}`);
