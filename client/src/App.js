@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Route} from 'react-router-dom';
 
 import Pomodoro from "./pages/Pomodoro";
 import Login from "./pages/Login";
+import Stats from "./pages/Stats";
 
 import config from './config';
 
@@ -46,6 +47,9 @@ function App({initialUser}) {
       }/>
       <Route path="/login" render={
         props => <Login {...props} isAuthenticated={isAuthenticated} authenticate={authenticate}/>
+      }/>
+      <Route path="/stats" render={
+        props => <Stats {...props} isAuthenticated={isAuthenticated} />
       }/>
     </Router>
   );

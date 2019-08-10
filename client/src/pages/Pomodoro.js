@@ -34,6 +34,9 @@ function Pomodoro(props) {
         <Row>
           <Timer tasks={tasks}/>
         </Row>
+        <Row>
+          <Link to="/stats">Stats</Link>
+        </Row>
       </div>
     </ThemeProvider>
   );
