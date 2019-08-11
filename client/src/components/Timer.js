@@ -6,9 +6,11 @@ import useInterval from '../customHooks/useInterval';
 function Timer(props) {
   const {tasks} = props;
 
-  const [currentTaskName, setCurrentTaskName] = useState('');
-  const [sessionLength, setSessionLength] = useState(25);
-  const [breakLength, setBreakLength] = useState(5);
+  const [currentTask, setCurrentTask] = useState({
+    name: '',
+    focusTime: 25,
+    relaxTime: 5
+  });
   const [timeLeft, setTimeLeft] = useState(25);
   const [isRunning, setIsRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
@@ -16,10 +18,12 @@ function Timer(props) {
 
   useInterval(_tick, isRunning ? 1000 : null);
 
-  if (currentTaskName === '' && tasks[0] !== undefined) {
-    setCurrentTaskName(tasks[0].name);
-    setSessionLength(tasks[0].focusTime);
-    setBreakLength(tasks[0].relaxTime);
+  if (currentTask.name === '' && tasks[0] !== undefined) {
+    setCurrentTask({
+      name: tasks[0].name,
+      focusTime: tasks[0].focusTime,
+      relaxTime: tasks[0].relaxTime
+    });
     setTimeLeft(tasks[0].focusTime);
   }
 
@@ -32,9 +36,7 @@ function Timer(props) {
 
       const {name, focusTime, relaxTime} = newTask;
       console.log(`${name} , ${focusTime} , ${relaxTime}`);
-      setCurrentTaskName(name);
-      setSessionLength(focusTime);
-      setBreakLength(relaxTime);
+      setCurrentTask({name, focusTime, relaxTime});
       setTimeLeft(focusTime);
     }
   }
@@ -52,16 +54,17 @@ function Timer(props) {
   function _tick() {
     const timeLeftNow = timeLeft - 1;
     if (timeLeftNow < 0) {
-      _changeSessionTo(!isBreak);
+      _changeSession();
     } else {
       if (timeLeftNow === 0) _playBeepFromStart();
       setTimeLeft(timeLeftNow);
     }
   }
 
-  function _changeSessionTo(nowIsBreak) {
+  function _changeSession() {
+    const nowIsBreak = !isBreak;
     setIsBreak(nowIsBreak);
-    setTimeLeft(nowIsBreak ? breakLength : sessionLength);
+    setTimeLeft(nowIsBreak ? currentTask.relaxTime : currentTask.focusTime);
   }
 
   function _getTimerLabel() {
@@ -98,5 +101,3 @@ function Timer(props) {
 }
 
 export default Timer;
-
-
