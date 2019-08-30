@@ -17,20 +17,6 @@ const Button = styled.button`
       `};
 `;
 
-const LabelDiv = styled.div`
-  color: ${props => props.theme.fgAccent};
-  text-align: center;
-`;
-
-const SetterWrapper = styled.div`
-  align: center;
-  background: linear-gradient(-5deg, ${props => props.theme.bgSecond}, ${props => props.theme.bgFirst});
-  border-radius: 5px;
-  margin: 0 10px;
-  padding: 0 5px 5px 5px;
-  width: 150px;
-`;
-
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -60,4 +46,10 @@ const TimeDisplay = styled.div`
   margin: 20px 0;
 `;
 
-export {Button, LabelDiv, SetterWrapper, Row, TimerLabel, TimerWrapper, TimeDisplay}
+const NavbarItem = styled.span`
+  padding: 5px;
+`;
+
+export {
+  Button, Row, TimerLabel, TimerWrapper, TimeDisplay, NavbarItem
+}
