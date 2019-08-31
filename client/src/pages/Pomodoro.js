@@ -14,6 +14,8 @@ function Pomodoro(props) {
     if (isAuthenticated) {
       axios.get(`${config.API_ROOT}/tasks`, {withCredentials: true})
         .then(response => setTasks(response.data));
+    } else {
+      setTasks([]);
     }
   }, [isAuthenticated]);
 

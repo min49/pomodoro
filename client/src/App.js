@@ -7,8 +7,10 @@ import Navbar from "./components/Navbar";
 import Pomodoro from "./pages/Pomodoro";
 import Login from "./pages/Login";
 import Stats from "./pages/Stats";
+import Register from "./pages/Register";
 
-function App({initialUser}) {
+function App(props) {
+  const {initialUser} = props;
   const [isAuthenticated, setIsAuthenticated] = useState(!!initialUser);
   const [currentUser, setCurrentUser] = useState(initialUser ? initialUser : '');
 
@@ -18,10 +20,16 @@ function App({initialUser}) {
     setCurrentUser(username);
   }
 
+  const loggedOut = () => {
+    console.log('logged out');
+    setIsAuthenticated(false);
+    setCurrentUser('');
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Router>
-        <Navbar isAuthenticated={isAuthenticated} currentUser={currentUser}/>
+        <Navbar isAuthenticated={isAuthenticated} currentUser={currentUser} loggedOut={loggedOut}/>
         <Route exact path="/" render={
           props => <Pomodoro {...props} isAuthenticated={isAuthenticated}/>
         }/>
@@ -30,6 +38,12 @@ function App({initialUser}) {
         }/>
         <Route path="/stats" render={
           props => <Stats {...props} isAuthenticated={isAuthenticated}/>
+        }/>
+        <Route path="/register" render={
+          props => <Register {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
+        }/>
+        <Route path="/setting" render={
+          props => <div>Setting</div>
         }/>
       </Router>
     </ThemeProvider>

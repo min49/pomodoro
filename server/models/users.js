@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
 const users = new Schema({
@@ -29,10 +30,30 @@ users.statics.login = async function (username, password) {
   if (!user) {
     return false;
   }
-  if (password === user.password) {
-    return user;
+  return await bcrypt.compare(password, user.password)
+    .then(function (res) {
+      if (res) {
+        return user;
+      } else {
+        return false;
+      }
+    });
+};
+
+users.statics.add = async function (username, password) {
+  const user = await this.findOne({username});
+  if (user) {
+    throw new Error('Username already exists.');
   } else {
-    return false;
+    const User = this;
+    return await bcrypt.genSalt(10)
+      .then(function (salt) {
+        return bcrypt.hash(password, salt)
+      }).then(function (hash) {
+        return new User({username, password: hash}).save();
+      }).catch(function (err) {
+        throw err;
+      });
   }
 };
 

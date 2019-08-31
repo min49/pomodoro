@@ -15,10 +15,18 @@ router.patch('/sessions/stop', ensureAuthenticated, sessionsController.stopSessi
 router.patch('/sessions/finish', ensureAuthenticated, sessionsController.finishSession);
 
 router.get('/users/current', usersController.getLoggedInUser);
+router.post('/users/register',
+  usersController.registerUser,
+  passport.authenticate('local'),
+  usersController.loginSuccess);
 
 router.post('/login',
   passport.authenticate('local'),
   usersController.loginSuccess);
+router.get('/logout', async function (req, res) {
+  req.logout();
+  res.status(200).json({status: 'logged out'});
+});
 
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
