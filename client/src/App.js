@@ -8,6 +8,7 @@ import Pomodoro from "./pages/Pomodoro";
 import Login from "./pages/Login";
 import Stats from "./pages/Stats";
 import Register from "./pages/Register";
+import Settings from "./pages/Settings";
 
 function App(props) {
   const {initialUser} = props;
@@ -42,8 +43,8 @@ function App(props) {
         <Route path="/register" render={
           props => <Register {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
         }/>
-        <Route path="/setting" render={
-          props => <div>Setting</div>
+        <Route path="/settings" render={
+          props => <Settings {...props} isAuthenticated={isAuthenticated}/>
         }/>
       </Router>
     </ThemeProvider>

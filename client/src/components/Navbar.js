@@ -15,7 +15,7 @@ function Navbar(props) {
           <span>Hello {currentUser}!</span>
           <NavbarItem><Link to="/">Home</Link></NavbarItem>
           <NavbarItem><Link to="/stats">Stats</Link></NavbarItem>
-          <NavbarItem><Link to="/setting">Setting</Link></NavbarItem>
+          <NavbarItem><Link to="/settings">Settings</Link></NavbarItem>
           <NavbarItem><Logout loggedOut={loggedOut}/></NavbarItem>
         </div>
         :
