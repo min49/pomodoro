@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 
 function Settings(props) {
   const {isAuthenticated, tasks} = props;
@@ -8,9 +9,12 @@ function Settings(props) {
   }
 
   return (
-    <ul>
-      {tasks.map(el => <li>{el.name}</li>)}
-    </ul>
+    <section>
+      <h2>Tasks</h2>
+      <ul>
+        {tasks.map(el => <li><Link to={`/settings/task/${el._id}`}>{el.name}</Link></li>)}
+      </ul>
+    </section>
   );
 }
 

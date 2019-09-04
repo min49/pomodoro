@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Stats from "./pages/Stats";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
+import Task from "./pages/Task";
 
 function App(props) {
   const {initialUser} = props;
@@ -55,8 +56,11 @@ function App(props) {
         <Route path="/register" render={
           props => <Register {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
         }/>
-        <Route path="/settings" render={
+        <Route path="/settings" exact render={
           props => <Settings {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
+        }/>
+        <Route path="/settings/task/:taskId" render={
+          props => <Task {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
         }/>
       </Router>
     </ThemeProvider>
