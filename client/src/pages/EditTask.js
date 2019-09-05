@@ -13,7 +13,7 @@ function EditTask(props) {
   const name = (task ? task.name : '');
   const focusTime = (task ? task.focusTime : '');
   const relaxTime = (task ? task.relaxTime : '');
-  const [saved, setSaved] = useState(false);
+  const [done, setDone] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -25,7 +25,7 @@ function EditTask(props) {
     ).then(res => {
       if (res.status === 200) {
         refreshTasks();
-        setSaved(true);
+        setDone(true);
       }
     }).catch(err => {
       if (err && err.response && err.response.data.errorMessage) {
@@ -40,15 +40,43 @@ function EditTask(props) {
     setCancelled(true);
   }
 
+  function deleteAction() {
+    if (window.confirm(`Are you sure you want to delete Task: ${name}?`)) {
+      axios.delete(
+        `${config.API_ROOT}/tasks/delete`,
+        {
+          data: {taskId},
+          withCredentials: true
+        }
+      ).then(res => {
+        if (res.status === 200) {
+          refreshTasks();
+          setDone(true);
+        }
+      }).catch(err => {
+        if (err && err.response && err.response.data.errorMessage) {
+          setErrorMessage(err.response.data.errorMessage);
+        } else {
+          setErrorMessage('An error occurred. Please try again later.');
+        }
+      });
+    }
+  }
+
   if (!isAuthenticated) {
     return <Redirect to='/'/>;
-  } else if (cancelled || saved) {
+  } else if (cancelled || done) {
     return <Redirect to='/settings'/>;
   } else if (!task) {
     return <div>Loading...</div>;
   } else {
-    return <TaskForm name={name} focusTime={focusTime} relaxTime={relaxTime} errorMessage={errorMessage}
-                     submitAction={submitAction} cancelAction={cancelAction}/>;
+    return (
+      <div>
+        <TaskForm name={name} focusTime={focusTime} relaxTime={relaxTime} errorMessage={errorMessage}
+                  submitAction={submitAction} cancelAction={cancelAction}/>
+        <button onClick={deleteAction}>Delete Task</button>
+      </div>
+    );
   }
 }
 
