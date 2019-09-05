@@ -57,4 +57,22 @@ users.statics.add = async function (username, password) {
   }
 };
 
+users.statics.changePassword = async function (userId, currentPassword, newPassword) {
+  // get User by userId
+  const user = await this.findOne({_id: userId});
+  if (user) {
+    const res = await bcrypt.compare(currentPassword, user.password);
+    if (res) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(newPassword, salt);
+      await user.save();
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    throw new Error('User not found');
+  }
+};
+
 module.exports = mongoose.model('Users', users);

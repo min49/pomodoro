@@ -21,6 +21,7 @@ router.post('/users/register',
   usersController.registerUser,
   passport.authenticate('local'),
   usersController.loginSuccess);
+router.patch('/users/changepassword', ensureAuthenticated, usersController.changePassword);
 
 router.post('/login',
   passport.authenticate('local'),
