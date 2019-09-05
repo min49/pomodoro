@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {BrowserRouter as Router, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 import {ThemeProvider} from 'styled-components';
 import axios from 'axios';
 
@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import Stats from "./pages/Stats";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
-import Task from "./pages/Task";
+import EditTask from "./pages/EditTask";
 
 function App(props) {
   const {initialUser} = props;
@@ -34,34 +34,42 @@ function App(props) {
     setCurrentUser(username);
   }
 
-  const loggedOut = () => {
+  function loggedOut() {
     console.log('logged out');
     setIsAuthenticated(false);
     setCurrentUser('');
-  };
+  }
+
+  function refreshTasks() {
+    setTasks([]);
+    axios.get(`${config.API_ROOT}/tasks`, {withCredentials: true})
+      .then(response => setTasks(response.data));
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <Navbar isAuthenticated={isAuthenticated} currentUser={currentUser} loggedOut={loggedOut}/>
-        <Route exact path="/" render={
-          props => <Pomodoro {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
-        }/>
-        <Route path="/login" render={
-          props => <Login {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
-        }/>
-        <Route path="/stats" render={
-          props => <Stats {...props} isAuthenticated={isAuthenticated}/>
-        }/>
-        <Route path="/register" render={
-          props => <Register {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
-        }/>
-        <Route path="/settings" exact render={
-          props => <Settings {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
-        }/>
-        <Route path="/settings/task/:taskId" render={
-          props => <Task {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
-        }/>
+        <Switch>
+          <Route exact path="/" render={
+            props => <Pomodoro {...props} tasks={tasks}/>
+          }/>
+          <Route path="/login" render={
+            props => <Login {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
+          }/>
+          <Route path="/stats" render={
+            props => <Stats {...props} isAuthenticated={isAuthenticated}/>
+          }/>
+          <Route path="/register" render={
+            props => <Register {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
+          }/>
+          <Route path="/settings" exact render={
+            props => <Settings {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
+          }/>
+          <Route path="/settings/task/:taskId" render={
+            props => <EditTask {...props} isAuthenticated={isAuthenticated} tasks={tasks} refreshTasks={refreshTasks}/>
+          }/>
+        </Switch>
       </Router>
     </ThemeProvider>
   );

@@ -38,4 +38,8 @@ sessions.statics.getSession = function (sessionId, userId) {
   return this.findOne({_id: sessionId, userId});
 };
 
+sessions.statics.deleteSessionsOfTask = function (taskId, userId) {
+  return this.deleteMany({taskId, userId});
+};
+
 module.exports = mongoose.model('Sessions', sessions);

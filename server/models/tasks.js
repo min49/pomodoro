@@ -36,4 +36,12 @@ tasks.statics.getId = function (userId, taskName) {
   return this.findOne({userId, name: taskName});
 };
 
+tasks.statics.getTask = function (taskId, userId) {
+  return this.findOne({_id: taskId, userId});
+};
+
+tasks.statics.deleteTask = function (taskId, userId) {
+  return this.deleteOne({_id: taskId, userId});
+};
+
 module.exports = mongoose.model('Tasks', tasks);

@@ -12,7 +12,7 @@ function Settings(props) {
     <section>
       <h2>Tasks</h2>
       <ul>
-        {tasks.map(el => <li><Link to={`/settings/task/${el._id}`}>{el.name}</Link></li>)}
+        {tasks.map(el => <li key={el._id}><Link to={`/settings/task/${el._id}`}>{el.name}</Link></li>)}
       </ul>
     </section>
   );
