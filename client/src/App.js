@@ -12,6 +12,7 @@ import Stats from "./pages/Stats";
 import Register from "./pages/Register";
 import Settings from "./pages/Settings";
 import EditTask from "./pages/EditTask";
+import NewTask from "./pages/NewTask";
 
 function App(props) {
   const {initialUser} = props;
@@ -65,6 +66,9 @@ function App(props) {
           }/>
           <Route path="/settings" exact render={
             props => <Settings {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
+          }/>
+          <Route path="/settings/task/new" render={
+            props => <NewTask {...props} isAuthenticated={isAuthenticated} refreshTasks={refreshTasks}/>
           }/>
           <Route path="/settings/task/:taskId" render={
             props => <EditTask {...props} isAuthenticated={isAuthenticated} tasks={tasks} refreshTasks={refreshTasks}/>

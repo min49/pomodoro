@@ -44,4 +44,10 @@ function TaskForm(props) {
   </div>;
 }
 
+TaskForm.defaultProps = {
+  name: '',
+  focusTime: '',
+  relaxTime: ''
+};
+
 export default TaskForm;

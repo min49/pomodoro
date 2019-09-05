@@ -14,6 +14,7 @@ function Settings(props) {
       <ul>
         {tasks.map(el => <li key={el._id}><Link to={`/settings/task/${el._id}`}>{el.name}</Link></li>)}
       </ul>
+      <Link to='/settings/task/new'>Add Task</Link>
     </section>
   );
 }
