@@ -27,7 +27,28 @@ const sessions = new Schema({
 // TODO: error handle DB calls
 
 sessions.statics.getSessionsOfUser = function (userId) {
-  return this.find({userId});
+  return this.aggregate([
+    {$match: {userId: new mongoose.Types.ObjectId(userId)}},
+    {
+      // Look up fields from 'Tasks' by 'taskId' (similar to join in SQL)
+      // and return the result in the field named 'task'.
+      $lookup: {
+        from: 'tasks',
+        let: {taskId: '$taskId'},
+        pipeline: [
+          // Filter other fields except 'Tasks.name' (and _id) in result -- 'task'
+          {$match: {$expr: {$eq: ['$$taskId', '$_id']}}},
+          {$project: {name: 1}}
+        ],
+        as: 'task'
+      }
+    },
+    // 'task' results in an array
+    // Unwind deconstructs it to give output with each element as separate record.
+    // e.g. {a: 1, task: [2, 3]} => {a: 1, task: 2}, {a: 1, task: 3}
+    // Here, task is expected to always be an array of one. So this just unwrap the array.
+    {$unwind: '$task'}
+  ]).exec();
 };
 
 sessions.statics.add = function (sessionObj) {
