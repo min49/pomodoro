@@ -1,5 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import axios from 'axios';
 
+import config from '../config';
 import useInterval from '../customHooks/useInterval';
 import {Button, Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
 
@@ -11,11 +13,28 @@ function Pomodoro(props) {
     INITIAL: 'initial',
     FOCUS: 'focus',
     FOCUS_PAUSED: 'focus_paused',
+    FOCUS_RESUMED: 'focus_resumed',
     FOCUS_COMPLETED: 'focus_completed',
     RELAX: 'relax',
     RELAX_PAUSED: 'relax_paused',
-    RELAX_COMPLETED: 'relax_completed'
+    RELAX_RESUMED: 'relax_resumed',
+    RELAX_COMPLETED: 'relax_completed',
+    STOPPED: 'stopped'
   };
+
+  const startPauseButtonTransition = new Map([
+    [p.INITIAL, p.FOCUS],
+    [p.STOPPED, p.FOCUS],
+    [p.FOCUS, p.FOCUS_PAUSED],
+    [p.FOCUS_RESUMED, p.FOCUS_PAUSED],
+    [p.FOCUS_PAUSED, p.FOCUS_RESUMED],
+    [p.FOCUS_COMPLETED, p.RELAX],
+    [p.RELAX, p.RELAX_PAUSED],
+    [p.RELAX_RESUMED, p.RELAX_PAUSED],
+    [p.RELAX_PAUSED, p.RELAX_RESUMED],
+    [p.RELAX_COMPLETED, p.FOCUS]
+  ]);
+
   const DEFAULT_TASK = {
     name: '',
     focusTime: 25,
@@ -25,6 +44,7 @@ function Pomodoro(props) {
   const [currentTask, setCurrentTask] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [phase, setPhase] = useState('');
+  const [sessionId, setSessionId] = useState('');
   const beepRef = useRef();
 
   // set Current task after complete loading tasks
@@ -43,7 +63,64 @@ function Pomodoro(props) {
     setTimeLeft(currentTask.focusTime);
   }, [currentTask]);
 
-  useInterval(tick, getTickInterval());
+  // tick
+  useInterval(() => {
+    const timeLeftNow = timeLeft - 1;
+    if (timeLeftNow === -1) {
+      if (phase === p.FOCUS || phase === p.FOCUS_RESUMED) {
+        setPhase(p.FOCUS_COMPLETED);
+      } else {
+        setPhase(p.RELAX_COMPLETED);
+      }
+    } else {
+      setTimeLeft(timeLeftNow);
+    }
+  }, getTickInterval());
+
+  // make api call to create/complete session on session start/stop
+  useEffect(() => {
+    if (phase === p.FOCUS) {
+      axios.post(
+        `${config.API_ROOT}/sessions/start`,
+        {
+          taskName: currentTask.name,
+          duration: currentTask.focusTime
+        },
+        {withCredentials: true}
+      ).then((response) => {
+        if (response.status === 201 && response.data) {
+          setSessionId(response.data._id);
+        }
+      })
+    } else if (phase === p.FOCUS_COMPLETED) {
+      if (sessionId) {
+        axios.patch(
+          `${config.API_ROOT}/sessions/finish`,
+          {sessionId},
+          {withCredentials: true}
+        )
+      }
+    } else if (phase === p.STOPPED) {
+      if (sessionId) {
+        axios.patch(
+          `${config.API_ROOT}/sessions/stop`,
+          {sessionId, remainingTime: timeLeft},
+          {withCredentials: true}
+        ).then(() => {
+          setPhase(p.INITIAL);
+        });
+      }
+    }
+  }, [phase]);
+
+  // reset timer on session complete or stop
+  useEffect(() => {
+    if (phase === p.STOPPED || phase === p.RELAX_COMPLETED) {
+      setTimeLeft(currentTask.focusTime);
+    } else if (phase === p.FOCUS_COMPLETED) {
+      setTimeLeft(currentTask.relaxTime);
+    }
+  }, [phase]);
 
   // play timer on session complete
   useEffect(() => {
@@ -57,28 +134,6 @@ function Pomodoro(props) {
     }
   }, [phase]);
 
-  // reset timer on session complete or stop
-  useEffect(() => {
-    if (phase === p.INITIAL || phase === p.RELAX_COMPLETED) {
-      setTimeLeft(currentTask.focusTime);
-    } else if (phase === p.FOCUS_COMPLETED) {
-      setTimeLeft(currentTask.relaxTime);
-    }
-  }, [phase]);
-
-  function tick() {
-    const timeLeftNow = timeLeft - 1;
-    if (timeLeftNow === -1) {
-      if (phase === p.FOCUS) {
-        setPhase(p.FOCUS_COMPLETED);
-      } else {
-        setPhase(p.RELAX_COMPLETED);
-      }
-    } else {
-      setTimeLeft(timeLeftNow);
-    }
-  }
-
   function playBeep() {
     stopBeep();
     beepRef.current.play();
@@ -90,8 +145,15 @@ function Pomodoro(props) {
   }
 
   function getTickInterval() {
-    const shouldTick = (phase === p.FOCUS || phase === p.RELAX);
-    return shouldTick ? ONE_SECOND : null;
+    switch (phase) {
+      case p.FOCUS:
+      case p.FOCUS_RESUMED:
+      case p.RELAX:
+      case p.RELAX_RESUMED:
+        return ONE_SECOND;
+      default:
+        return null;
+    }
   }
 
   function handleTaskChange(e) {
@@ -105,37 +167,12 @@ function Pomodoro(props) {
   }
 
   function handleStartPauseButtonClick() {
-    let nextPhase = p.INITIAL;
-    switch (phase) {
-      case (p.INITIAL):
-        nextPhase = p.FOCUS;
-        break;
-      case (p.FOCUS) :
-        nextPhase = p.FOCUS_PAUSED;
-        break;
-      case (p.FOCUS_PAUSED):
-        nextPhase = p.FOCUS;
-        break;
-      case (p.FOCUS_COMPLETED):
-        nextPhase = p.RELAX;
-        break;
-      case (p.RELAX):
-        nextPhase = p.RELAX_PAUSED;
-        break;
-      case (p.RELAX_PAUSED):
-        nextPhase = p.RELAX;
-        break;
-      case (p.RELAX_COMPLETED):
-        nextPhase = p.FOCUS;
-        break;
-      default:
-        nextPhase = p.INITIAL;
-    }
-    setPhase(nextPhase);
+    const nextPhase = startPauseButtonTransition.get(phase);
+    setPhase(nextPhase ? nextPhase : p.INITIAL);
   }
 
   function handleStopButtonClick() {
-    setPhase(p.INITIAL);
+    setPhase(p.STOPPED);
   }
 
   function _getMinuteSecondString(seconds) {
@@ -147,14 +184,17 @@ function Pomodoro(props) {
   function getTimerLabel() {
     switch (phase) {
       case p.INITIAL:
+      case p.STOPPED:
         return `Let's Start!`;
       case p.FOCUS:
       case p.FOCUS_PAUSED:
+      case p.FOCUS_RESUMED:
         return 'Focus';
       case p.FOCUS_COMPLETED:
         return 'Good Job!';
       case p.RELAX:
       case p.RELAX_PAUSED:
+      case p.RELAX_RESUMED:
         return 'Relax';
       case p.RELAX_COMPLETED:
         return 'Time to Work!';
@@ -164,7 +204,9 @@ function Pomodoro(props) {
   function getStartPauseButtonText() {
     switch (phase) {
       case p.FOCUS:
+      case p.FOCUS_RESUMED:
       case p.RELAX:
+      case p.RELAX_RESUMED:
         return 'Pause';
       default:
         return 'Start';
