@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
+import {Button, Confirm, Divider} from 'semantic-ui-react';
 
 import config from '../config';
 import TaskForm from '../components/TaskForm';
+import GridContainer from "../components/GridContainer";
 
 function EditTask(props) {
   const {isAuthenticated, tasks, refreshTasks, match} = props;
@@ -16,6 +18,7 @@ function EditTask(props) {
   const [done, setDone] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [shouldShowConfirm, setShouldShowConfirm] = useState(false);
 
   function submitAction(data) {
     axios.patch(
@@ -41,26 +44,24 @@ function EditTask(props) {
   }
 
   function deleteAction() {
-    if (window.confirm(`Are you sure you want to delete Task: ${name}?`)) {
-      axios.delete(
-        `${config.API_ROOT}/tasks/delete`,
-        {
-          data: {taskId},
-          withCredentials: true
-        }
-      ).then(res => {
-        if (res.status === 200) {
-          refreshTasks();
-          setDone(true);
-        }
-      }).catch(err => {
-        if (err && err.response && err.response.data.errorMessage) {
-          setErrorMessage(err.response.data.errorMessage);
-        } else {
-          setErrorMessage('An error occurred. Please try again later.');
-        }
-      });
-    }
+    axios.delete(
+      `${config.API_ROOT}/tasks/delete`,
+      {
+        data: {taskId},
+        withCredentials: true
+      }
+    ).then(res => {
+      if (res.status === 200) {
+        refreshTasks();
+        setDone(true);
+      }
+    }).catch(err => {
+      if (err && err.response && err.response.data.errorMessage) {
+        setErrorMessage(err.response.data.errorMessage);
+      } else {
+        setErrorMessage('An error occurred. Please try again later.');
+      }
+    });
   }
 
   if (!isAuthenticated) {
@@ -71,11 +72,20 @@ function EditTask(props) {
     return <div>Loading...</div>;
   } else {
     return (
-      <div>
+      <GridContainer title='Edit Task'>
         <TaskForm name={name} focusTime={focusTime} relaxTime={relaxTime} errorMessage={errorMessage}
                   submitAction={submitAction} cancelAction={cancelAction}/>
-        <button onClick={deleteAction}>Delete Task</button>
-      </div>
+        <Divider/>
+        <Button basic compact negative onClick={() => setShouldShowConfirm(true)}>
+          Delete Task
+        </Button>
+        <Confirm
+          open={shouldShowConfirm}
+          content={`Are you sure you want to delete task: ${name}?`}
+          onCancel={() => setShouldShowConfirm(false)}
+          onConfirm={deleteAction}
+        />
+      </GridContainer>
     );
   }
 }

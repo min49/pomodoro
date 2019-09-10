@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {Button, Form, Message} from 'semantic-ui-react';
 
 function TaskForm(props) {
   const [name, setName] = useState(props.name);
@@ -16,32 +17,30 @@ function TaskForm(props) {
     cancelAction();
   }
 
-  return <div>
-    <form onSubmit={submitHandler}>
-      <div>
-        <label htmlFor='name'>Task Name</label>
-        <input type='text' id='name' onChange={e => setName(e.target.value)}
-               value={name} required/>
-      </div>
+  return <Form onSubmit={submitHandler} error={!!errorMessage}>
+    <Form.Field required>
+      <label htmlFor='name'>Task Name</label>
+      <input type='text' id='name' onChange={e => setName(e.target.value)}
+             value={name} required/>
+    </Form.Field>
 
-      <div>
-        <label htmlFor='focusTime'>Focus Time</label>
-        <input type='text' id='focusTime' onChange={e => setFocusTime(e.target.value)}
-               value={focusTime} required/>
-      </div>
+    <Form.Field required>
+      <label htmlFor='focusTime'>Focus Time</label>
+      <input type='number' id='focusTime' min='1' onChange={e => setFocusTime(e.target.value)}
+             value={focusTime} required/>
+    </Form.Field>
 
-      <div>
-        <label htmlFor='relaxTime'>Relax Time</label>
-        <input type='text' id='relaxTime' onChange={e => setRelaxTime(e.target.value)}
-               value={relaxTime} required/>
-      </div>
+    <Form.Field required>
+      <label htmlFor='relaxTime'>Relax Time</label>
+      <input type='number' id='relaxTime' min='1' onChange={e => setRelaxTime(e.target.value)}
+             value={relaxTime} required/>
+    </Form.Field>
 
-      {errorMessage && <div>{errorMessage}</div>}
+    {errorMessage && <Message error>{errorMessage}</Message>}
 
-      <button onClick={cancelHandler}>Cancel</button>
-      <button type="submit">Save</button>
-    </form>
-  </div>;
+    <Button onClick={cancelHandler}>Cancel</Button>
+    <Button primary type="submit">Save</Button>
+  </Form>;
 }
 
 TaskForm.defaultProps = {

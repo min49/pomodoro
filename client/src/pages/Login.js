@@ -1,8 +1,10 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
+import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
+import GridContainer from "../components/GridContainer";
 
 function Login(props) {
   const {isAuthenticated, loginSuccessful} = props;
@@ -34,31 +36,31 @@ function Login(props) {
     });
   }
 
-  return (
-    <div>
-      {
-        isAuthenticated
-          ? <Redirect to='/'/>
-          : (<form onSubmit={login}>
-            <div>
-              <label htmlFor="username">Username</label>
-              <input type="text" id="username" onChange={e => setUsername(e.target.value)}
-                     value={username} required/>
-            </div>
+  if (isAuthenticated) {
+    return <Redirect to='/'/>
+  } else {
+    return (
+      <GridContainer title='Log in'>
+        <Form onSubmit={login} error={!!errorMessage}>
+          <Form.Field required>
+            <label htmlFor="username">Username</label>
+            <input type="text" id="username" onChange={e => setUsername(e.target.value)}
+                   value={username} required/>
+          </Form.Field>
 
-            <div>
-              <label htmlFor="password">Password</label>
-              <input type="password" id="password" onChange={e => setPassword(e.target.value)}
-                     value={password} required/>
-            </div>
+          <Form.Field required>
+            <label htmlFor="password">Password</label>
+            <input type="password" id="password" onChange={e => setPassword(e.target.value)}
+                   value={password} required/>
+          </Form.Field>
 
-            {errorMessage && <div>{errorMessage}</div>}
+          {errorMessage && <Message error>{errorMessage}</Message>}
 
-            <button type='submit'>Log in</button>
-          </form>)
-      }
-    </div>
-  )
+          <Form.Button primary type='submit'>Log in</Form.Button>
+        </Form>
+      </GridContainer>
+    )
+  }
 }
 
 export default Login;

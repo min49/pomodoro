@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import axios from 'axios';
 import {Redirect} from 'react-router-dom';
+import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
 
@@ -45,32 +46,31 @@ function PasswordChangeForm(props) {
   if (!isAuthenticated) {
     return <Redirect to='/'/>
   }
-  return <>
-    <h2>Change Password</h2>
-    <form onSubmit={submitPasswordChange}>
-      <div>
+  return (
+    <Form onSubmit={submitPasswordChange} error={!!errorMessage}>
+      <Form.Field required>
         <label htmlFor='current-password'>Current Password</label>
         <input type='password' id='current-password' onChange={e => setCurrentPassword(e.target.value)}
                value={currentPassword} required/>
-      </div>
+      </Form.Field>
 
-      <div>
+      <Form.Field required>
         <label htmlFor='new-password'>New Password</label>
         <input type='password' id='new-password' onChange={e => setNewPassword(e.target.value)}
                value={newPassword} required/>
-      </div>
+      </Form.Field>
 
-      <div>
+      <Form.Field required>
         <label htmlFor='confirm-new-password'>Confirm New Password</label>
         <input type='password' id='confirm-new-password' onChange={e => setConfirmNewPassword(e.target.value)}
                value={confirmNewPassword} required/>
-      </div>
+      </Form.Field>
 
-      {errorMessage && <div>{errorMessage}</div>}
+      {errorMessage && <Message error>{errorMessage}</Message>}
 
-      <button type='submit'>Submit</button>
-    </form>
-  </>;
+      <Form.Button type='submit'>Submit</Form.Button>
+    </Form>
+  );
 }
 
 export default PasswordChangeForm;

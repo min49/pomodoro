@@ -1,31 +1,55 @@
-import React from "react";
+import React, {useState} from "react";
 import {Link} from 'react-router-dom';
+import {Menu} from 'semantic-ui-react';
 
-import {NavbarItem} from "./styled-elements";
 import Logout from "./Logout";
 
 function Navbar(props) {
   const {isAuthenticated, currentUser, loggedOut} = props;
+  const [activeItem, setActiveItem] = useState('');
 
-  return (
-    <div className="navbar">
-      {isAuthenticated
-        ?
-        <div>
-          <span>Hello {currentUser}!</span>
-          <NavbarItem><Link to="/">Home</Link></NavbarItem>
-          <NavbarItem><Link to="/stats">Stats</Link></NavbarItem>
-          <NavbarItem><Link to="/settings">Settings</Link></NavbarItem>
-          <NavbarItem><Logout loggedOut={loggedOut}/></NavbarItem>
-        </div>
-        :
-        <div>
-          <NavbarItem><Link to="/">Home</Link></NavbarItem>
-          <NavbarItem><Link to="/register">Register</Link></NavbarItem>
-          <NavbarItem><Link to="/login">Log in</Link></NavbarItem>
-        </div>
-      }
-    </div>);
+  function handleItemClick(e, {name}) {
+    setActiveItem(name);
+  }
+
+  function menuItemLink(name, to) {
+    return <Menu.Item
+      name={name}
+      active={activeItem === name}
+      as={Link}
+      to={to}
+      onClick={handleItemClick}
+    />
+  }
+
+  if (isAuthenticated) {
+    return (
+      <Menu>
+        <Menu.Menu position='right'>
+          <Menu.Item header>Hello {currentUser}!</Menu.Item>
+          {menuItemLink('home', '/')}
+          {menuItemLink('stats', '/stats')}
+          {menuItemLink('settings', '/settings')}
+          <Menu.Item
+            name='logOut'
+            active={activeItem === 'logOut'}
+            loggedOut={loggedOut}
+            as={Logout}
+          />
+        </Menu.Menu>
+      </Menu>
+    );
+  } else {
+    return (
+      <Menu>
+        <Menu.Menu position='right'>
+          {menuItemLink('home', '/')}
+          {menuItemLink('register', '/register')}
+          {menuItemLink('logIn', '/login')}
+        </Menu.Menu>
+      </Menu>
+    );
+  }
 }
 
 export default Navbar;

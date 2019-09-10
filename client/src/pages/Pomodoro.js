@@ -1,10 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
 import axios from 'axios';
+import {Button, Card, Dropdown, Icon} from 'semantic-ui-react';
 
 import config from '../config';
 import useInterval from '../customHooks/useInterval';
 import {secondsToMinuteSecondString} from "../utils/timeConverter";
-import {Button, Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
+import {Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
 
 function Pomodoro(props) {
   const {isAuthenticated, tasks} = props;
@@ -158,8 +159,8 @@ function Pomodoro(props) {
     }
   }
 
-  function handleTaskChange(e) {
-    const newTaskName = e.target.value;
+  function handleTaskChange(e, {value}) {
+    const newTaskName = value;
     const newTask = tasks.find(t => t.name === newTaskName);
 
     if (newTask) {
@@ -197,37 +198,54 @@ function Pomodoro(props) {
     }
   }
 
-  function getStartPauseButtonText() {
+  function getStartPauseButtonContent() {
     switch (phase) {
       case p.FOCUS:
       case p.FOCUS_RESUMED:
       case p.RELAX:
       case p.RELAX_RESUMED:
-        return 'Pause';
+        return <Icon name='pause'/>;
       default:
-        return 'Start';
+        return <Icon name='play'/>;
     }
   }
 
   return (
-    <Row>
-      <TimerWrapper>
+    <Card centered raised>
+      <Card.Content header textAlign="center">
+        <TimerLabel>{getTimerLabel()}</TimerLabel>
+      </Card.Content>
+
+      <Card.Content textAlign="center">
         {
           tasks.length === 0
             ? null
-            : <select style={{display: 'block', margin: 'auto'}} onChange={handleTaskChange}>
-              {tasks.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
-            </select>
+            :
+            <Dropdown
+              defaultValue={tasks[0].name}
+              onChange={handleTaskChange}
+              options={
+                tasks.map(t => ({
+                  key: t.name,
+                  text: t.name,
+                  value: t.name
+                }))
+              }/>
         }
-        <TimerLabel id="timer-label">{getTimerLabel()}</TimerLabel>
-
         <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeLeft)}</TimeDisplay>
-        <Button primary id="start-pause" onClick={handleStartPauseButtonClick}>{getStartPauseButtonText()}</Button>
-        <Button id="stop" onClick={handleStopButtonClick}>Stop</Button>
-        <audio id="beep" ref={beepRef}
-               src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
-      </TimerWrapper>
-    </Row>
+      </Card.Content>
+
+      <Card.Content textAlign="center">
+        <Button icon primary id="start-pause" onClick={handleStartPauseButtonClick}>
+          {getStartPauseButtonContent()}
+        </Button>
+        <Button icon id="stop" onClick={handleStopButtonClick}>
+          <Icon name='stop'/>
+        </Button>
+      </Card.Content>
+      <audio id="beep" ref={beepRef}
+             src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
+    </Card>
   );
 }
 
