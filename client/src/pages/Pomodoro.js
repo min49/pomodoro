@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import config from '../config';
 import useInterval from '../customHooks/useInterval';
+import {secondsToMinuteSecondString} from "../utils/timeConverter";
 import {Button, Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
 
 function Pomodoro(props) {
@@ -175,12 +176,6 @@ function Pomodoro(props) {
     setPhase(p.STOPPED);
   }
 
-  function _getMinuteSecondString(seconds) {
-    const minute = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const second = (seconds % 60).toString().padStart(2, '0');
-    return `${minute}:${second}`;
-  }
-
   function getTimerLabel() {
     switch (phase) {
       case p.INITIAL:
@@ -225,7 +220,7 @@ function Pomodoro(props) {
         }
         <TimerLabel id="timer-label">{getTimerLabel()}</TimerLabel>
 
-        <TimeDisplay id="time-left">{_getMinuteSecondString(timeLeft)}</TimeDisplay>
+        <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeLeft)}</TimeDisplay>
         <Button primary id="start-pause" onClick={handleStartPauseButtonClick}>{getStartPauseButtonText()}</Button>
         <Button id="stop" onClick={handleStopButtonClick}>Stop</Button>
         <audio id="beep" ref={beepRef}
