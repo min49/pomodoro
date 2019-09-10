@@ -16,27 +16,30 @@ function Stats(props) {
 
   function processSessions(response) {
     const {data} = response;
-    console.log(data);
 
     /*
      * statsByDate =
      *   sessionDate -> thisDateStats = {
      *                    completedSessionCountOnDate,
      *                    incompleteSessionCountOnDate,
-     *                    tasksOnDate = taskName -> sessionCounts = {
+     *                    completedTotalTimeOnDate,
+     *                    tasksOnDate = taskName -> taskStats = {
      *                                                completed,
-     *                                                incomplete
+     *                                                incomplete,
+     *                                                completedTime
      *                                              }
      *                  }
      */
     const statsByDate = new Map();
-    for (const s of data) {
+    for (let i = data.length - 1; i >= 0; i--) {
+      const s = data[i];
       const sessionDate = new Date(s.startDatetime).toLocaleDateString();
       let thisDateStats = statsByDate.get(sessionDate);
       if (!thisDateStats) {
         thisDateStats = {
           completedSessionCountOnDate: 0,
           incompleteSessionCountOnDate: 0,
+          completedTotalTimeOnDate: 0,
           tasksOnDate: new Map()
         };
         statsByDate.set(sessionDate, thisDateStats);
@@ -44,24 +47,26 @@ function Stats(props) {
 
       const taskName = s.task.name;
       const {tasksOnDate} = thisDateStats;
-      let sessionCounts = tasksOnDate.get(taskName);
-      if (!sessionCounts) {
-        sessionCounts = {
+      let taskStats = tasksOnDate.get(taskName);
+      if (!taskStats) {
+        taskStats = {
           completed: 0,
-          incomplete: 0
+          incomplete: 0,
+          completedTime: 0
         };
-        tasksOnDate.set(taskName, sessionCounts);
+        tasksOnDate.set(taskName, taskStats);
       }
 
       if (s.isCompleted) {
         thisDateStats.completedSessionCountOnDate += 1;
-        sessionCounts.completed += 1;
+        thisDateStats.completedTotalTimeOnDate += s.duration;
+        taskStats.completed += 1;
+        taskStats.completedTime += s.duration;
       } else {
         thisDateStats.incompleteSessionCountOnDate += 1;
-        sessionCounts.incomplete += 1;
+        taskStats.incomplete += 1;
       }
     }
-    console.log(statsByDate);
     setStats(statsByDate);
   }
 
@@ -71,10 +76,10 @@ function Stats(props) {
     let output = [];
     for (let [date, statsOfDate] of stats) {
       let sessionsByTask = [];
-      for (let [taskName, sessionCount] of statsOfDate.tasksOnDate) {
+      for (let [taskName, taskStats] of statsOfDate.tasksOnDate) {
         sessionsByTask.push(
           <div key={`${date}-${taskName}`}>
-            {taskName} : {sessionCount.completed} : {sessionCount.incomplete}
+            {taskName} : {taskStats.incomplete} : {taskStats.completed} : {taskStats.completedTime}
           </div>
         );
       }
@@ -85,15 +90,15 @@ function Stats(props) {
           {sessionsByTask}
           <div>
             <strong>Total</strong> :
+            {statsOfDate.incompleteSessionCountOnDate} :
             {statsOfDate.completedSessionCountOnDate} :
-            {statsOfDate.incompleteSessionCountOnDate}
+            {statsOfDate.completedTotalTimeOnDate}
           </div>
         </div>
       );
     }
     return output;
   }
-
 
   return (
     isAuthenticated
