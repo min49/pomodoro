@@ -7,7 +7,7 @@ import {secondsToMinuteSecondString} from "../utils/timeConverter";
 import {Button, Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
 
 function Pomodoro(props) {
-  const {tasks} = props;
+  const {isAuthenticated, tasks} = props;
 
   const ONE_SECOND = 1000;
   const p = {
@@ -80,6 +80,7 @@ function Pomodoro(props) {
 
   // make api call to create/complete session on session start/stop
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (phase === p.FOCUS) {
       axios.post(
         `${config.API_ROOT}/sessions/start`,

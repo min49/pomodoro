@@ -53,7 +53,7 @@ function App(props) {
         <Navbar isAuthenticated={isAuthenticated} currentUser={currentUser} loggedOut={loggedOut}/>
         <Switch>
           <Route exact path="/" render={
-            props => <Pomodoro {...props} tasks={tasks}/>
+            props => <Pomodoro {...props} isAuthenticated={isAuthenticated} tasks={tasks}/>
           }/>
           <Route path="/login" render={
             props => <Login {...props} isAuthenticated={isAuthenticated} loginSuccessful={loginSuccessful}/>
