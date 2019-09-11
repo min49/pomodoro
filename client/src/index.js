@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import axios from 'axios';
 
 import './index.css';
+import 'semantic-ui-less/semantic.less';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import config from './config';
