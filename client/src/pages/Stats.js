@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
+import {Container, Header, Table} from 'semantic-ui-react';
 
 import config from '../config';
 
@@ -70,41 +71,45 @@ function Stats(props) {
     setStats(statsByDate);
   }
 
-  function getHtmlForStats(stats) {
+  function getTableRows(stats) {
     if (!stats) return null;
 
-    let output = [];
+    let rows = [];
     for (let [date, statsOfDate] of stats) {
-      let sessionsByTask = [];
-      for (let [taskName, taskStats] of statsOfDate.tasksOnDate) {
-        sessionsByTask.push(
-          <div key={`${date}-${taskName}`}>
-            {taskName} : {taskStats.incomplete} : {taskStats.completed} : {taskStats.completedTime}
-          </div>
-        );
-      }
-
-      output.push(
-        <div key={`${date}`}>
-          <h4>{date}</h4>
-          {sessionsByTask}
-          <div>
-            <strong>Total</strong> :
-            {statsOfDate.incompleteSessionCountOnDate} :
-            {statsOfDate.completedSessionCountOnDate} :
-            {statsOfDate.completedTotalTimeOnDate}
-          </div>
-        </div>
-      );
+      rows.push(
+        <Table.Row>
+          <Table.Cell>{date}</Table.Cell>
+          <Table.Cell>
+            {statsOfDate.incompleteSessionCountOnDate + statsOfDate.completedSessionCountOnDate}
+          </Table.Cell>
+          <Table.Cell>{statsOfDate.completedSessionCountOnDate}</Table.Cell>
+          <Table.Cell>{statsOfDate.completedTotalTimeOnDate}</Table.Cell>
+        </Table.Row>);
     }
-    return output;
+    return rows;
   }
 
-  return (
-    isAuthenticated
-      ? <div>{getHtmlForStats(stats)}</div>
-      : <div> Please Login or Register.</div>
-  );
+  if (!isAuthenticated) {
+    return <div>Please Login or Register</div>;
+  } else {
+    return (
+      <Container>
+        <Header as='h2'>Stats</Header>
+        <Table celled>
+          <Table.Header>
+            <Table.Row>
+              <Table.HeaderCell>Date</Table.HeaderCell>
+              <Table.HeaderCell>Started</Table.HeaderCell>
+              <Table.HeaderCell>Completed</Table.HeaderCell>
+              <Table.HeaderCell>Completed Time</Table.HeaderCell>
+            </Table.Row>
+          </Table.Header>
+          {getTableRows(stats)}
+        </Table>
+      </Container>
+
+    );
+  }
 }
 
 export default Stats;
