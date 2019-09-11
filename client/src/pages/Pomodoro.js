@@ -1,11 +1,12 @@
 import React, {useEffect, useRef, useState} from 'react';
 import axios from 'axios';
-import {Button, Card, Dropdown, Icon} from 'semantic-ui-react';
+import {Button, Card, Container, Dropdown, Icon} from 'semantic-ui-react';
 
 import config from '../config';
 import useInterval from '../customHooks/useInterval';
 import {secondsToMinuteSecondString} from "../utils/timeConverter";
-import {Row, TimeDisplay, TimerLabel, TimerWrapper} from "../components/styled-elements";
+import {TimeDisplay, TimerLabel} from "../components/styled-elements";
+import Features from "../components/Features";
 
 function Pomodoro(props) {
   const {isAuthenticated, tasks} = props;
@@ -211,41 +212,46 @@ function Pomodoro(props) {
   }
 
   return (
-    <Card centered raised className='pomodoro'>
-      <Card.Content header textAlign="center">
-        <TimerLabel>{getTimerLabel()}</TimerLabel>
-      </Card.Content>
+    <Container>
 
-      <Card.Content textAlign="center">
-        {
-          tasks.length === 0
-            ? null
-            :
-            <Dropdown
-              defaultValue={tasks[0].name}
-              onChange={handleTaskChange}
-              options={
-                tasks.map(t => ({
-                  key: t.name,
-                  text: t.name,
-                  value: t.name
-                }))
-              }/>
-        }
-        <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeLeft)}</TimeDisplay>
-      </Card.Content>
 
-      <Card.Content textAlign="center">
-        <Button icon primary id="start-pause" onClick={handleStartPauseButtonClick}>
-          {getStartPauseButtonContent()}
-        </Button>
-        <Button icon id="stop" onClick={handleStopButtonClick}>
-          <Icon name='stop'/>
-        </Button>
-      </Card.Content>
-      <audio id="beep" ref={beepRef}
-             src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
-    </Card>
+      <Card centered raised className='pomodoro'>
+        <Card.Content header textAlign="center">
+          <TimerLabel>{getTimerLabel()}</TimerLabel>
+        </Card.Content>
+
+        <Card.Content textAlign="center">
+          {
+            tasks.length === 0
+              ? null
+              :
+              <Dropdown
+                defaultValue={tasks[0].name}
+                onChange={handleTaskChange}
+                options={
+                  tasks.map(t => ({
+                    key: t.name,
+                    text: t.name,
+                    value: t.name
+                  }))
+                }/>
+          }
+          <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeLeft)}</TimeDisplay>
+        </Card.Content>
+
+        <Card.Content textAlign="center">
+          <Button icon primary id="start-pause" onClick={handleStartPauseButtonClick}>
+            {getStartPauseButtonContent()}
+          </Button>
+          <Button icon id="stop" onClick={handleStopButtonClick}>
+            <Icon name='stop'/>
+          </Button>
+        </Card.Content>
+        <audio id="beep" ref={beepRef}
+               src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
+      </Card>
+      <Features/>
+    </Container>
   );
 }
 
