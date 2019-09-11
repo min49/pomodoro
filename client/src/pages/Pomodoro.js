@@ -211,7 +211,7 @@ function Pomodoro(props) {
   }
 
   return (
-    <Card centered raised>
+    <Card centered raised className='pomodoro'>
       <Card.Content header textAlign="center">
         <TimerLabel>{getTimerLabel()}</TimerLabel>
       </Card.Content>
