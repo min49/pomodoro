@@ -5,7 +5,7 @@ import {Button, Confirm, Divider} from 'semantic-ui-react';
 
 import config from '../config';
 import TaskForm from '../components/TaskForm';
-import GridContainer from "../components/GridContainer";
+import FormContainer from "../components/FormContainer";
 
 function EditTask(props) {
   const {isAuthenticated, tasks, refreshTasks, match} = props;
@@ -72,7 +72,7 @@ function EditTask(props) {
     return <div>Loading...</div>;
   } else {
     return (
-      <GridContainer title='Edit Task'>
+      <FormContainer title='Edit Task'>
         <TaskForm name={name} focusTime={focusTime} relaxTime={relaxTime} errorMessage={errorMessage}
                   submitAction={submitAction} cancelAction={cancelAction}/>
         <Divider/>
@@ -85,7 +85,7 @@ function EditTask(props) {
           onCancel={() => setShouldShowConfirm(false)}
           onConfirm={deleteAction}
         />
-      </GridContainer>
+      </FormContainer>
     );
   }
 }

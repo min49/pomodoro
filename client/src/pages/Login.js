@@ -4,7 +4,7 @@ import {Redirect} from 'react-router-dom';
 import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
-import GridContainer from "../components/GridContainer";
+import FormContainer from "../components/FormContainer";
 
 function Login(props) {
   const {isAuthenticated, loginSuccessful} = props;
@@ -40,7 +40,7 @@ function Login(props) {
     return <Redirect to='/'/>
   } else {
     return (
-      <GridContainer title='Log in'>
+      <FormContainer title='Log in'>
         <Form onSubmit={login} error={!!errorMessage}>
           <Form.Field required>
             <label htmlFor="username">Username</label>
@@ -58,7 +58,7 @@ function Login(props) {
 
           <Form.Button primary type='submit'>Log in</Form.Button>
         </Form>
-      </GridContainer>
+      </FormContainer>
     )
   }
 }

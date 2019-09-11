@@ -4,7 +4,7 @@ import {Redirect} from 'react-router-dom';
 
 import config from '../config';
 import TaskForm from "../components/TaskForm";
-import GridContainer from "../components/GridContainer";
+import FormContainer from "../components/FormContainer";
 
 function NewTask(props) {
   const {isAuthenticated, refreshTasks} = props;
@@ -42,9 +42,9 @@ function NewTask(props) {
     return <Redirect to='/settings'/>;
   } else {
     return (
-      <GridContainer title='Add New Task'>
+      <FormContainer title='Add New Task'>
         <TaskForm errorMessage={errorMessage} submitAction={submitAction} cancelAction={cancelAction}/>
-      </GridContainer>
+      </FormContainer>
     );
   }
 }

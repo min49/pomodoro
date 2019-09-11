@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import {Button, Container, Header, List, Segment} from 'semantic-ui-react';
 
 import PasswordChangeForm from '../components/PasswordChangeForm';
-import GridContainer from "../components/GridContainer";
+import FormContainer from "../components/FormContainer";
 
 function Settings(props) {
   const {isAuthenticated, tasks} = props;
@@ -27,9 +27,9 @@ function Settings(props) {
         </List>
         <Button as={Link} to='/settings/task/new'>Add Task</Button>
       </Segment>
-      <GridContainer title='Change Password' noContainer='true'>
+      <FormContainer title='Change Password' noContainer='true'>
         <PasswordChangeForm isAuthenticated={isAuthenticated}/>
-      </GridContainer>
+      </FormContainer>
     </Container>
   </>;
 }

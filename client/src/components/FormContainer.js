@@ -1,7 +1,7 @@
 import React from 'react';
 import {Container, Grid, Header, Segment} from 'semantic-ui-react';
 
-function GridContainer(props) {
+function FormContainer(props) {
   const {title, children, noContainer} = props;
 
   const content = (
@@ -22,4 +22,4 @@ function GridContainer(props) {
   }
 }
 
-export default GridContainer;
+export default FormContainer;
