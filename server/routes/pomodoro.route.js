@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 
+const ValidatorGenerator = require('./utils/ValidatorGenerator');
+const {sessionsSchemaObj} = require('../models/sessions');
+const {tasksSchemaObj} = require('../models/tasks');
+
 const tasksController = require('../controllers/tasks.controller');
 const usersController = require('../controllers/users.controller');
 const sessionsController = require('../controllers/sessions.controller');
@@ -12,7 +16,11 @@ router.patch('/tasks/edit', ensureAuthenticated, tasksController.editTask);
 router.delete('/tasks/delete', ensureAuthenticated, tasksController.deleteTask);
 
 router.get('/sessions', ensureAuthenticated, sessionsController.getSessions);
-router.post('/sessions/start', ensureAuthenticated, sessionsController.addSession);
+router.post('/sessions/start',
+  ensureAuthenticated,
+  ValidatorGenerator.forSchema(sessionsSchemaObj, ['duration']),
+  ValidatorGenerator.forSchema(tasksSchemaObj, [{name: 'taskName'}]),
+  sessionsController.addSession);
 router.patch('/sessions/stop', ensureAuthenticated, sessionsController.stopSession);
 router.patch('/sessions/finish', ensureAuthenticated, sessionsController.finishSession);
 

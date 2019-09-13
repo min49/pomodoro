@@ -1,5 +1,5 @@
-const Sessions = require('../models/sessions');
-const Tasks = require('../models/tasks');
+const {Sessions} = require('../models/sessions');
+const {Tasks} = require('../models/tasks');
 
 exports.getTasks = async function (req, res) {
   const userId = req.user.id;

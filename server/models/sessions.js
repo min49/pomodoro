@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
-const sessions = new Schema({
+const sessionsSchemaObj = {
   taskId: {
     type: Schema.Types.ObjectId,
     required: true
@@ -22,7 +22,8 @@ const sessions = new Schema({
     type: Schema.Types.ObjectId,
     required: true
   }
-});
+};
+const sessions = new Schema(sessionsSchemaObj);
 
 // TODO: error handle DB calls
 
@@ -63,4 +64,5 @@ sessions.statics.deleteSessionsOfTask = function (taskId, userId) {
   return this.deleteMany({taskId, userId});
 };
 
-module.exports = mongoose.model('Sessions', sessions);
+exports.sessionsSchemaObj = sessionsSchemaObj;
+exports.Sessions = mongoose.model('Sessions', sessions);
