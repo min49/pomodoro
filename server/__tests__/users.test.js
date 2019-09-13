@@ -33,7 +33,10 @@ test('User login with correct username and password', async () => {
     .send({username: 'user', password: 'pass'});
 
   expect(res.status).toEqual(200);
-  expect(res.body).toEqual({status: 'logged in'});
+  expect(res.body).toEqual({
+    status: 'logged in',
+    username: 'user'
+  });
 });
 
 test('User login with incorrect username and password', async () => {
@@ -43,7 +46,7 @@ test('User login with incorrect username and password', async () => {
     .post(`/api/pomodoro/login`)
     .send({username: 'user', password: 'wrong'});
 
-  expect(res.status).toEqual(302);
+  expect(res.status).toEqual(401);
 });
 
 const DATA = [

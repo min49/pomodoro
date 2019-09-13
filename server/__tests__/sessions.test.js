@@ -3,7 +3,7 @@ jest.mock('../dbHelper');
 const TestDbHelper = require('../models/__tests__/testUtils/testDbHelper');
 const {login} = require('./testUtils/requestHelper');
 const {setupTestData} = require('./testUtils/helper');
-const Sessions = require('../models/sessions');
+const {Sessions} = require('../models/sessions');
 
 const testDbHelper = new TestDbHelper();
 
