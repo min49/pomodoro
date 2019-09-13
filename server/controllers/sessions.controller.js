@@ -1,6 +1,5 @@
 const {Sessions} = require('../models/sessions');
 const {Tasks} = require('../models/tasks');
-const {validationResult} = require('express-validator');
 
 exports.getSessions = async function (req, res) {
   const userId = req.user.id;
@@ -9,11 +8,6 @@ exports.getSessions = async function (req, res) {
 };
 
 exports.addSession = async function (req, res) {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(422).json({errors: errors.array()});
-  }
-
   const
     userId = req.user.id,
     {taskName, duration} = req.body,

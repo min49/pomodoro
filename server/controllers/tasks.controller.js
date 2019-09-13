@@ -7,11 +7,13 @@ exports.getTasks = async function (req, res) {
   res.json(tasksOfUser);
 };
 
-// TODO: validate req.body
 exports.addTask = async function (req, res) {
+  const {name, focusTime, relaxTime} = req.body;
   const task = {
-    ...req.body,
-    userId: req.user.id
+    userId: req.user.id,
+    name,
+    focusTime,
+    relaxTime
   };
   const savedTask = await Tasks.add(task);
   res.status(201).json(savedTask);

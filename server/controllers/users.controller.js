@@ -1,4 +1,4 @@
-const Users = require('../models/users');
+const {Users} = require('../models/users');
 
 exports.loginSuccess = function (req, res) {
   res.status(200).json({

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const Schema = mongoose.Schema;
-const users = new Schema({
+const usersSchemaObj = {
   username: {
     type: String,
     max: 20,
@@ -13,7 +13,8 @@ const users = new Schema({
     type: String,
     required: true
   }
-});
+};
+const users = new Schema(usersSchemaObj);
 
 users.statics.serializeForPassport = function (user) {
   return user.id;
@@ -75,4 +76,5 @@ users.statics.changePassword = async function (userId, currentPassword, newPassw
   }
 };
 
-module.exports = mongoose.model('Users', users);
+exports.usersSchemaObj = usersSchemaObj;
+exports.Users = mongoose.model('Users', users);

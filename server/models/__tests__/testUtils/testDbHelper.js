@@ -17,9 +17,11 @@ class TestDbHelper {
       useFindAndModify: false, // for deprecated error in mongoose
       useCreateIndex: true
     };
-    await mongoose.connect(mongoUri, opts, (err) => {
+    try {
+      await mongoose.connect(mongoUri, opts);
+    } catch (err) {
       if (err) console.error(err);
-    });
+    }
   }
 
   async stop() {

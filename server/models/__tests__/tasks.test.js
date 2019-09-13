@@ -1,6 +1,6 @@
 const TestDbHelper = require('./testUtils/testDbHelper');
 const {Tasks} = require('../tasks');
-const Users = require('../users');
+const {Users} = require('../users');
 
 describe('Tasks', () => {
   const testDbHelper = new TestDbHelper();

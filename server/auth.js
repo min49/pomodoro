@@ -3,7 +3,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local');
 
 const config = require('./config');
-const Users = require('./models/users');
+const {Users} = require('./models/users');
 
 module.exports = function (app) {
   // app.use(session(..)) must be called before passport

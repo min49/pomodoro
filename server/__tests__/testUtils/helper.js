@@ -1,4 +1,4 @@
-const Users = require('../../models/users');
+const {Users} = require('../../models/users');
 const {Tasks} = require('../../models/tasks');
 const {Sessions} = require('../../models/sessions');
 

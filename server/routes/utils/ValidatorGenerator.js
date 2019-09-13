@@ -1,4 +1,5 @@
 const {body} = require('express-validator');
+const Schema = require('mongoose').Schema;
 
 class ValidatorGenerator {
   /**
@@ -10,14 +11,6 @@ class ValidatorGenerator {
    * @returns [] - array of Validation Chains to use as Express middleware
    */
   static forSchema(schemaObj, requiredFields = [], optionalFields = []) {
-    function required(field) {
-      return body(field).exists().withMessage(`${field} is required.`).bail();
-    }
-
-    function optional(field) {
-      return body(field).if(body(field).exists());
-    }
-
     function getNames_FormatChecked(fieldEntry) {
       switch (typeof fieldEntry) {
         case 'string':
@@ -36,7 +29,10 @@ class ValidatorGenerator {
     function makeValidators(baseValidation) {
       return ((fieldEntry) => {
         const [schemaTypeName, bodyFieldName] = getNames_FormatChecked(fieldEntry);
-        if (schemaObj.hasOwnProperty(schemaTypeName)) {
+
+        if (schemaTypeName === '_id') {
+          return ValidatorGenerator.forOneField(baseValidation, bodyFieldName, {type: Schema.Types.ObjectId});
+        } else if (schemaObj.hasOwnProperty(schemaTypeName)) {
           return ValidatorGenerator.forOneField(baseValidation, bodyFieldName, schemaObj[schemaTypeName])
         } else {
           throw new Error(`Invalid SchemaType name for validation: ${schemaTypeName}`);
@@ -45,11 +41,18 @@ class ValidatorGenerator {
     }
 
     let validators = [];
-    validators.push(requiredFields.map(makeValidators(required)));
-    validators.push(optionalFields.map(makeValidators(optional)));
+    validators.push(requiredFields.map(makeValidators(this.required)));
+    validators.push(optionalFields.map(makeValidators(this.optional)));
     return validators;
   }
 
+  static required(field) {
+    return body(field).exists().withMessage(`${field} is required.`).bail();
+  }
+
+  static optional(field) {
+    return body(field).if(body(field).exists());
+  }
 
   /**
    * @param validate - Function that returns express-validation Validation Chain

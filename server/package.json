@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon server.js",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "author": "Min Thu Aung",
   "license": "MIT",
