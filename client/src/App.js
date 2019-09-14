@@ -22,7 +22,7 @@ function App(props) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      axios.get(`${config.API_ROOT}/tasks`, {withCredentials: true})
+      axios.get(`${config.API_ROOT}/api/pomodoro/tasks`, {withCredentials: true})
         .then(response => setTasks(response.data));
     } else {
       setTasks([]);
@@ -43,7 +43,7 @@ function App(props) {
 
   function refreshTasks() {
     setTasks([]);
-    axios.get(`${config.API_ROOT}/tasks`, {withCredentials: true})
+    axios.get(`${config.API_ROOT}/api/pomodoro/tasks`, {withCredentials: true})
       .then(response => setTasks(response.data));
   }
 

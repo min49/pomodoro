@@ -20,7 +20,7 @@ function PasswordChangeForm(props) {
     }
 
     axios.patch(
-      `${config.API_ROOT}/users/changepassword`,
+      `${config.API_ROOT}/api/pomodoro/users/changepassword`,
       {currentPassword, newPassword},
       {withCredentials: true}
     ).then(res => {

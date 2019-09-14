@@ -9,7 +9,7 @@ import * as serviceWorker from './serviceWorker';
 import config from './config';
 
 let initialUser = undefined;
-axios.get(`${config.API_ROOT}/users/current`, {withCredentials: true})
+axios.get(`${config.API_ROOT}/api/pomodoro/users/current`, {withCredentials: true})
   .then((res) => {
     if (res.data.isLoggedIn === true) {
       console.log(`index.js setting initialUser to ${res.data.username}`);

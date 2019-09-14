@@ -20,7 +20,7 @@ function Login(props) {
   function authenticate(username, password) {
     console.log('in authenticate');
     axios.post(
-      `${config.API_ROOT}/login`,
+      `${config.API_ROOT}/api/pomodoro/login`,
       {username, password},
       {withCredentials: true}
     ).then((res) => {

@@ -15,7 +15,7 @@ function NewTask(props) {
 
   function submitAction(data) {
     axios.post(
-      `${config.API_ROOT}/tasks/new`,
+      `${config.API_ROOT}/api/pomodoro/tasks/new`,
       data,
       {withCredentials: true}
     ).then(res => {

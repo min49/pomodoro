@@ -1,1 +1,1 @@
-exports.API_ROOT = 'http://localhost:3003/api/pomodoro';
+exports.API_ROOT = process.env.REACT_APP_REST_API_LOCATION;

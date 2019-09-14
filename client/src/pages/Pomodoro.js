@@ -85,7 +85,7 @@ function Pomodoro(props) {
     if (!isAuthenticated) return;
     if (phase === p.FOCUS) {
       axios.post(
-        `${config.API_ROOT}/sessions/start`,
+        `${config.API_ROOT}/api/pomodoro/sessions/start`,
         {
           taskName: currentTask.name,
           duration: currentTask.focusTime
@@ -99,7 +99,7 @@ function Pomodoro(props) {
     } else if (phase === p.FOCUS_COMPLETED) {
       if (sessionId) {
         axios.patch(
-          `${config.API_ROOT}/sessions/finish`,
+          `${config.API_ROOT}/api/pomodoro/sessions/finish`,
           {sessionId},
           {withCredentials: true}
         )
@@ -107,7 +107,7 @@ function Pomodoro(props) {
     } else if (phase === p.STOPPED) {
       if (sessionId) {
         axios.patch(
-          `${config.API_ROOT}/sessions/stop`,
+          `${config.API_ROOT}/api/pomodoro/sessions/stop`,
           {sessionId, remainingTime: timeLeft},
           {withCredentials: true}
         ).then(() => {

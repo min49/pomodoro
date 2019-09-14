@@ -10,7 +10,7 @@ function Stats(props) {
 
   useEffect(() => {
     if (isAuthenticated) {
-      axios.get(`${config.API_ROOT}/sessions`, {withCredentials: true})
+      axios.get(`${config.API_ROOT}/api/pomodoro/sessions`, {withCredentials: true})
         .then(processSessions);
     }
   }, [isAuthenticated]);

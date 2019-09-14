@@ -10,7 +10,7 @@ function Logout(props) {
 
   function logout(e) {
     axios.get(
-      `${config.API_ROOT}/logout`,
+      `${config.API_ROOT}/api/pomodoro/logout`,
       {withCredentials: true}
     ).then(() => {
       loggedOut();

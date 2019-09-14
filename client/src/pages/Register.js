@@ -21,7 +21,7 @@ function Register(props) {
     }
 
     axios.post(
-      `${config.API_ROOT}/users/register`,
+      `${config.API_ROOT}/api/pomodoro/users/register`,
       {username, password},
       {withCredentials: true}
     ).then((res) => {

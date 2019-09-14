@@ -1,5 +1,6 @@
 'use strict';
 require('dotenv').config(); // Read env variables from .env file
+const path = require('path');
 const config = require('./config');
 
 const express = require('express');
@@ -20,5 +21,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use('/api/pomodoro', pomodoroRouter);
+
+if (config.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/build')));
+  app.get('*', (req, res) => res.sendFile(
+    path.join(__dirname, '../client/build', 'index.html')));
+}
 
 module.exports = app;

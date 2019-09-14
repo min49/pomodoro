@@ -22,7 +22,7 @@ function EditTask(props) {
 
   function submitAction(data) {
     axios.patch(
-      `${config.API_ROOT}/tasks/edit`,
+      `${config.API_ROOT}/api/pomodoro/tasks/edit`,
       {taskId, ...data},
       {withCredentials: true}
     ).then(res => {
@@ -45,7 +45,7 @@ function EditTask(props) {
 
   function deleteAction() {
     axios.delete(
-      `${config.API_ROOT}/tasks/delete`,
+      `${config.API_ROOT}/api/pomodoro/tasks/delete`,
       {
         data: {taskId},
         withCredentials: true
