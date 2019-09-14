@@ -77,7 +77,7 @@ function Stats(props) {
     let rows = [];
     for (let [date, statsOfDate] of stats) {
       rows.push(
-        <Table.Row>
+        <Table.Row key={date}>
           <Table.Cell>{date}</Table.Cell>
           <Table.Cell>
             {statsOfDate.incompleteSessionCountOnDate + statsOfDate.completedSessionCountOnDate}
@@ -104,7 +104,9 @@ function Stats(props) {
               <Table.HeaderCell>Completed Time</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
-          {getTableRows(stats)}
+          <Table.Body>
+            {getTableRows(stats)}
+          </Table.Body>
         </Table>
       </Container>
 

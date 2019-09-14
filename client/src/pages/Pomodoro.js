@@ -8,11 +8,8 @@ import {secondsToMinuteSecondString} from "../utils/timeConverter";
 import {TimeDisplay, TimerLabel} from "../components/styled-elements";
 import Features from "../components/Features";
 
-function Pomodoro(props) {
-  const {isAuthenticated, tasks} = props;
-
-  const ONE_SECOND = 1000;
-  const p = {
+const
+  p = {
     INITIAL: 'initial',
     FOCUS: 'focus',
     FOCUS_PAUSED: 'focus_paused',
@@ -23,9 +20,8 @@ function Pomodoro(props) {
     RELAX_RESUMED: 'relax_resumed',
     RELAX_COMPLETED: 'relax_completed',
     STOPPED: 'stopped'
-  };
-
-  const startPauseButtonTransition = new Map([
+  },
+  startPauseButtonTransition = new Map([
     [p.INITIAL, p.FOCUS],
     [p.STOPPED, p.FOCUS],
     [p.FOCUS, p.FOCUS_PAUSED],
@@ -36,35 +32,38 @@ function Pomodoro(props) {
     [p.RELAX_RESUMED, p.RELAX_PAUSED],
     [p.RELAX_PAUSED, p.RELAX_RESUMED],
     [p.RELAX_COMPLETED, p.FOCUS]
-  ]);
-
-  const DEFAULT_TASK = {
+  ]),
+  DEFAULT_TASK = {
     name: '',
     focusTime: 25,
     relaxTime: 5
-  };
+  },
+  ONE_SECOND = 1000;
+
+function Pomodoro(props) {
+  const {isAuthenticated, tasks} = props;
 
   const [currentTask, setCurrentTask] = useState({});
   const [timeLeft, setTimeLeft] = useState(0);
   const [phase, setPhase] = useState('');
-  const [sessionId, setSessionId] = useState('');
+  const [sessionId, setSessionId] = useState(null);
   const beepRef = useRef();
 
-  // set Current task after complete loading tasks
+  // initial setting currentTask and reset on log out.
   useEffect(() => {
-    if ((!currentTask.name || currentTask.name === '') && tasks && tasks[0]) {
-      const {name, focusTime, relaxTime} = tasks[0];
-      setCurrentTask({name, focusTime, relaxTime});
+    if (isAuthenticated && tasks && tasks[0]) {
+      if (!currentTask.name || currentTask.name === '') {
+        const {name, focusTime, relaxTime} = tasks[0];
+        setCurrentTask({name, focusTime, relaxTime});
+        setPhase(p.INITIAL);
+        setTimeLeft(focusTime);
+      }
     } else {
       setCurrentTask(DEFAULT_TASK);
+      setPhase(p.INITIAL);
+      setTimeLeft(DEFAULT_TASK.focusTime);
     }
-  }, [tasks]);
-
-  // set phase and timer on task change
-  useEffect(() => {
-    setPhase(p.INITIAL);
-    setTimeLeft(currentTask.focusTime);
-  }, [currentTask]);
+  }, [isAuthenticated, tasks, currentTask.name]);
 
   // tick
   useInterval(() => {
@@ -72,62 +71,28 @@ function Pomodoro(props) {
     if (timeLeftNow === -1) {
       if (phase === p.FOCUS || phase === p.FOCUS_RESUMED) {
         setPhase(p.FOCUS_COMPLETED);
+        phaseChangeActions(p.FOCUS_COMPLETED);
       } else {
         setPhase(p.RELAX_COMPLETED);
+        phaseChangeActions(p.RELAX_COMPLETED);
       }
     } else {
       setTimeLeft(timeLeftNow);
     }
   }, getTickInterval());
 
-  // make api call to create/complete session on session start/stop
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    if (phase === p.FOCUS) {
-      axios.post(
-        `${config.API_ROOT}/api/pomodoro/sessions/start`,
-        {
-          taskName: currentTask.name,
-          duration: currentTask.focusTime
-        },
-        {withCredentials: true}
-      ).then((response) => {
-        if (response.status === 201 && response.data) {
-          setSessionId(response.data._id);
-        }
-      })
-    } else if (phase === p.FOCUS_COMPLETED) {
-      if (sessionId) {
-        axios.patch(
-          `${config.API_ROOT}/api/pomodoro/sessions/finish`,
-          {sessionId},
-          {withCredentials: true}
-        )
-      }
-    } else if (phase === p.STOPPED) {
-      if (sessionId) {
-        axios.patch(
-          `${config.API_ROOT}/api/pomodoro/sessions/stop`,
-          {sessionId, remainingTime: timeLeft},
-          {withCredentials: true}
-        ).then(() => {
-          setPhase(p.INITIAL);
-        });
-      }
-    }
-  }, [phase]);
-
-  // reset timer on session complete or stop
-  useEffect(() => {
-    if (phase === p.STOPPED || phase === p.RELAX_COMPLETED) {
-      setTimeLeft(currentTask.focusTime);
-    } else if (phase === p.FOCUS_COMPLETED) {
-      setTimeLeft(currentTask.relaxTime);
-    }
-  }, [phase]);
-
   // play timer on session complete
   useEffect(() => {
+    function playBeep() {
+      stopBeep();
+      beepRef.current.play();
+    }
+
+    function stopBeep() {
+      beepRef.current.pause();
+      beepRef.current.currentTime = 0;
+    }
+
     if (phase === p.RELAX_COMPLETED || phase === p.FOCUS_COMPLETED) {
       const delay = ONE_SECOND * 60;
       playBeep();
@@ -136,17 +101,7 @@ function Pomodoro(props) {
     } else {
       stopBeep();
     }
-  }, [phase]);
-
-  function playBeep() {
-    stopBeep();
-    beepRef.current.play();
-  }
-
-  function stopBeep() {
-    beepRef.current.pause();
-    beepRef.current.currentTime = 0;
-  }
+  }, [phase, beepRef]);
 
   function getTickInterval() {
     switch (phase) {
@@ -167,16 +122,84 @@ function Pomodoro(props) {
     if (newTask) {
       const {name, focusTime, relaxTime} = newTask;
       setCurrentTask({name, focusTime, relaxTime});
+      setPhase(p.INITIAL);
+      setTimeLeft(focusTime);
     }
   }
 
   function handleStartPauseButtonClick() {
     const nextPhase = startPauseButtonTransition.get(phase);
     setPhase(nextPhase ? nextPhase : p.INITIAL);
+    phaseChangeActions(nextPhase);
   }
 
   function handleStopButtonClick() {
     setPhase(p.STOPPED);
+    phaseChangeActions(p.STOPPED);
+  }
+
+  function phaseChangeActions(phase) {
+    switch (phase) {
+      case p.INITIAL:
+        setSessionId(null);
+        break;
+      case p.STOPPED:
+        setTimeLeft(currentTask.focusTime);
+        if (isAuthenticated && sessionId) {
+          axios.patch(
+            `${config.API_ROOT}/api/pomodoro/sessions/stop`,
+            {sessionId, remainingTime: timeLeft},
+            {withCredentials: true}
+          ).then(() => {
+            setPhase(p.INITIAL);
+            setSessionId(null);
+          });
+        }
+        break;
+      case p.FOCUS:
+        if (isAuthenticated) {
+          axios.post(
+            `${config.API_ROOT}/api/pomodoro/sessions/start`,
+            {
+              taskName: currentTask.name,
+              duration: currentTask.focusTime
+            },
+            {withCredentials: true}
+          ).then((response) => {
+            if (response.status === 201 && response.data) {
+              setSessionId(response.data._id);
+            }
+          });
+        }
+        break;
+      case p.FOCUS_PAUSED:
+        break;
+      case p.FOCUS_RESUMED:
+        break;
+      case p.FOCUS_COMPLETED:
+        setTimeLeft(currentTask.relaxTime);
+        if (isAuthenticated && sessionId) {
+          axios.patch(
+            `${config.API_ROOT}/api/pomodoro/sessions/finish`,
+            {sessionId},
+            {withCredentials: true}
+          ).then(() => {
+            setSessionId(null);
+          });
+        }
+        break;
+      case p.RELAX:
+        break;
+      case p.RELAX_PAUSED:
+        break;
+      case p.RELAX_RESUMED:
+        break;
+      case p.RELAX_COMPLETED:
+        setTimeLeft(currentTask.focusTime);
+        break;
+      default:
+        break;
+    }
   }
 
   function getTimerLabel() {
@@ -196,6 +219,8 @@ function Pomodoro(props) {
         return 'Relax';
       case p.RELAX_COMPLETED:
         return 'Time to Work!';
+      default:
+        return null;
     }
   }
 
@@ -216,7 +241,7 @@ function Pomodoro(props) {
 
 
       <Card centered raised className='pomodoro'>
-        <Card.Content header textAlign="center">
+        <Card.Content textAlign="center">
           <TimerLabel>{getTimerLabel()}</TimerLabel>
         </Card.Content>
 
