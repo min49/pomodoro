@@ -1,7 +1,17 @@
 {
   "name": "pomodoro-min49",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.16.2",
+    "yarn": "1.17.3"
+  },
+  "cacheDirectories": [
+    "client/node_modules",
+    "server/node_modules"
+  ],
   "scripts": {
-    "postinstall": "cd server && yarn && yarn start"
+    "start": "cd server && node server.js",
+    "postinstall": "cd server && yarn",
+    "heroku-postbuild": "cd client && yarn install --production=false && yarn build"
   }
 }

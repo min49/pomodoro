@@ -2,6 +2,10 @@
   "name": "pomodoro-web",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "10.16.2",
+    "yarn": "1.17.3"
+  },
   "dependencies": {
     "axios": "^0.19.0",
     "gh-pages": "^2.0.1",
