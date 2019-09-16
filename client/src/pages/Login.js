@@ -5,7 +5,7 @@ import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
 import FormContainer from "../components/FormContainer";
-import Recaptcha from 'react-recaptcha';
+import Reaptcha from 'reaptcha';
 
 function Login(props) {
   const {isAuthenticated, loginSuccessful} = props;
@@ -13,6 +13,7 @@ function Login(props) {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [recaptchaResponse, setRecaptchaResponse] = useState(null);
+  let reaptchaRef = null;
 
   function login(e) {
     e.preventDefault();
@@ -50,6 +51,10 @@ function Login(props) {
         console.error(err);
       }
     });
+    // reset reCaptcha after form submit, so it is ready to
+    // check and resubmit if there's an error returned.
+    reaptchaRef.reset();
+    setRecaptchaResponse(null);
   }
 
   if (isAuthenticated) {
@@ -72,10 +77,11 @@ function Login(props) {
 
           {errorMessage && <Message error>{errorMessage}</Message>}
 
-          <Recaptcha
+          <Reaptcha
             sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-            verifyCallback={(gResponse) => setRecaptchaResponse(gResponse)}
-            expiredCallback={() => setRecaptchaResponse(null)}
+            ref={e => (reaptchaRef = e)}
+            onVerify={(gResponse) => setRecaptchaResponse(gResponse)}
+            onExpire={() => setRecaptchaResponse(null)}
           />
 
           <Form.Button primary type='submit'>Log in</Form.Button>

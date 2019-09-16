@@ -5,7 +5,7 @@ import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
 import FormContainer from "../components/FormContainer";
-import Recaptcha from 'react-recaptcha';
+import Reaptcha from 'reaptcha';
 
 function Register(props) {
   const {isAuthenticated, loginSuccessful} = props;
@@ -14,6 +14,7 @@ function Register(props) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [recaptchaResponse, setRecaptchaResponse] = useState(null);
+  let reaptchaRef = null;
 
   function register(e) {
     e.preventDefault();
@@ -45,6 +46,10 @@ function Register(props) {
         setErrorMessage('An error occurred during Registration. Please try again later.');
       }
     });
+    // reset reCaptcha after form submit, so it is ready to
+    // check and resubmit if there's an error returned.
+    reaptchaRef.reset();
+    setRecaptchaResponse(null);
   }
 
   function passwordIsValid() {
@@ -77,10 +82,11 @@ function Register(props) {
 
           {errorMessage && <Message error>{errorMessage}</Message>}
 
-          <Recaptcha
+          <Reaptcha
             sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
-            verifyCallback={(gResponse) => setRecaptchaResponse(gResponse)}
-            expiredCallback={() => setRecaptchaResponse(null)}
+            ref={e => (reaptchaRef = e)}
+            onVerify={(gResponse) => setRecaptchaResponse(gResponse)}
+            onExpire={() => setRecaptchaResponse(null)}
           />
 
           <Form.Button primary type="submit">Register</Form.Button>
