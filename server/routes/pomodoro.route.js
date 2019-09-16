@@ -88,7 +88,10 @@ function ensureValidRequest(req, res, next) {
   if (errors.isEmpty()) {
     return next();
   } else {
-    return res.status(422).json({errors: errors.array()});
+    return res.status(422).json({
+      errorMessage: 'Invalid request.',
+      errors: errors.array()
+    });
   }
 }
 
