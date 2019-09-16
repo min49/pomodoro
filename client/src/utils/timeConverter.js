@@ -4,4 +4,16 @@ function secondsToMinuteSecondString(seconds) {
   return `${minute}:${second}`;
 }
 
-export {secondsToMinuteSecondString}
+function secondsToRoundedMinutes(seconds) {
+  return Math.round(seconds / 60);
+}
+
+function minutesToSeconds(minutes) {
+  return minutes * 60;
+}
+
+export {
+  secondsToMinuteSecondString,
+  secondsToRoundedMinutes,
+  minutesToSeconds
+}

@@ -4,7 +4,7 @@ import {Button, Card, Container, Dropdown, Icon} from 'semantic-ui-react';
 
 import config from '../config';
 import useInterval from '../customHooks/useInterval';
-import {secondsToMinuteSecondString} from "../utils/timeConverter";
+import {secondsToMinuteSecondString, secondsToRoundedMinutes, minutesToSeconds} from "../utils/timeConverter";
 import {TimeDisplay, TimerLabel} from "../components/styled-elements";
 import Features from "../components/Features";
 
@@ -44,7 +44,9 @@ function Pomodoro(props) {
   const {isAuthenticated, tasks} = props;
 
   const [currentTask, setCurrentTask] = useState({});
-  const [timeLeft, setTimeLeft] = useState(0);
+  // Time interval in tasks is stored in minutes
+  // Convert to seconds to use in Pomodoro component
+  const [timeInSecondsLeft, setTimeInSecondsLeft] = useState(0);
   const [phase, setPhase] = useState('');
   const [sessionId, setSessionId] = useState(null);
   const beepRef = useRef();
@@ -56,19 +58,19 @@ function Pomodoro(props) {
         const {name, focusTime, relaxTime} = tasks[0];
         setCurrentTask({name, focusTime, relaxTime});
         setPhase(p.INITIAL);
-        setTimeLeft(focusTime);
+        setTimeInSecondsLeft(minutesToSeconds(focusTime));
       }
     } else {
       setCurrentTask(DEFAULT_TASK);
       setPhase(p.INITIAL);
-      setTimeLeft(DEFAULT_TASK.focusTime);
+      setTimeInSecondsLeft(minutesToSeconds(DEFAULT_TASK.focusTime));
     }
   }, [isAuthenticated, tasks, currentTask.name]);
 
   // tick
   useInterval(() => {
-    const timeLeftNow = timeLeft - 1;
-    if (timeLeftNow === -1) {
+    const timeInSecondsLeftNow = timeInSecondsLeft - 1;
+    if (timeInSecondsLeftNow === -1) {
       if (phase === p.FOCUS || phase === p.FOCUS_RESUMED) {
         setPhase(p.FOCUS_COMPLETED);
         phaseChangeActions(p.FOCUS_COMPLETED);
@@ -77,7 +79,7 @@ function Pomodoro(props) {
         phaseChangeActions(p.RELAX_COMPLETED);
       }
     } else {
-      setTimeLeft(timeLeftNow);
+      setTimeInSecondsLeft(timeInSecondsLeftNow);
     }
   }, getTickInterval());
 
@@ -123,7 +125,7 @@ function Pomodoro(props) {
       const {name, focusTime, relaxTime} = newTask;
       setCurrentTask({name, focusTime, relaxTime});
       setPhase(p.INITIAL);
-      setTimeLeft(focusTime);
+      setTimeInSecondsLeft(minutesToSeconds(focusTime));
     }
   }
 
@@ -144,11 +146,11 @@ function Pomodoro(props) {
         setSessionId(null);
         break;
       case p.STOPPED:
-        setTimeLeft(currentTask.focusTime);
+        setTimeInSecondsLeft(minutesToSeconds(currentTask.focusTime));
         if (isAuthenticated && sessionId) {
           axios.patch(
             `${config.API_ROOT}/api/pomodoro/sessions/stop`,
-            {sessionId, remainingTime: timeLeft},
+            {sessionId, remainingTime: secondsToRoundedMinutes(timeInSecondsLeft)},
             {withCredentials: true}
           ).then(() => {
             setPhase(p.INITIAL);
@@ -177,7 +179,7 @@ function Pomodoro(props) {
       case p.FOCUS_RESUMED:
         break;
       case p.FOCUS_COMPLETED:
-        setTimeLeft(currentTask.relaxTime);
+        setTimeInSecondsLeft(minutesToSeconds(currentTask.relaxTime));
         if (isAuthenticated && sessionId) {
           axios.patch(
             `${config.API_ROOT}/api/pomodoro/sessions/finish`,
@@ -195,7 +197,7 @@ function Pomodoro(props) {
       case p.RELAX_RESUMED:
         break;
       case p.RELAX_COMPLETED:
-        setTimeLeft(currentTask.focusTime);
+        setTimeInSecondsLeft(minutesToSeconds(currentTask.focusTime));
         break;
       default:
         break;
@@ -261,7 +263,7 @@ function Pomodoro(props) {
                   }))
                 }/>
           }
-          <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeLeft)}</TimeDisplay>
+          <TimeDisplay id="time-left">{secondsToMinuteSecondString(timeInSecondsLeft)}</TimeDisplay>
         </Card.Content>
 
         <Card.Content textAlign="center">
