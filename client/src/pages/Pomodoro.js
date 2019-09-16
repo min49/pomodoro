@@ -277,7 +277,7 @@ function Pomodoro(props) {
         <audio id="beep" ref={beepRef}
                src="https://docs.google.com/uc?export=download&id=177Le-I9Z4arIsILN9xicG7-GkGt09PdM"/>
       </Card>
-      <Features/>
+      {isAuthenticated ? null : <Features/>}
     </Container>
   );
 }

@@ -42,8 +42,12 @@ function Login(props) {
     }).catch(err => {
       if (err && err.response && err.response.status === 401) {
         setErrorMessage('Incorrect Username or password');
+      } else if (err && err.response && err.response.data && err.response.data.errorMessage) {
+        setErrorMessage(err.response.data.errorMessage);
       } else {
-        setErrorMessage(err);
+        setErrorMessage('Error submitting login.');
+        console.error('Error submitting login:');
+        console.error(err);
       }
     });
   }
