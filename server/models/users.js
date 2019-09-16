@@ -27,7 +27,11 @@ users.statics.deserializeForPassport = function (id) {
 
 // TODO: Error Handle findOne()
 users.statics.login = async function (username, password) {
-  const user = await this.findOne({username});
+  const user = await this.findOne({
+    username: {
+      $regex: new RegExp(`^${username}$`, 'i')
+    }
+  });
   if (!user) {
     return false;
   }
@@ -42,7 +46,11 @@ users.statics.login = async function (username, password) {
 };
 
 users.statics.add = async function (username, password) {
-  const user = await this.findOne({username});
+  const user = await this.findOne({
+    username: {
+      $regex: new RegExp(`^${username}$`, 'i')
+    }
+  });
   if (user) {
     throw new Error('Username already exists.');
   } else {
