@@ -106,7 +106,10 @@ function checkRecaptcha(req, res, next) {
     if (result.success) {
       next();
     } else {
-      return res.status(422).json({errorMessage: 'reCaptcha validation failed.'});
+      return res.status(422).json({
+        errorMessage: 'reCaptcha validation failed:',
+        response: result
+      });
     }
   });
 }
