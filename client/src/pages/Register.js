@@ -5,6 +5,7 @@ import {Form, Message} from 'semantic-ui-react';
 
 import config from '../config';
 import FormContainer from "../components/FormContainer";
+import Recaptcha from 'react-recaptcha';
 
 function Register(props) {
   const {isAuthenticated, loginSuccessful} = props;
@@ -12,6 +13,7 @@ function Register(props) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [recaptchaResponse, setRecaptchaResponse] = useState(null);
 
   function register(e) {
     e.preventDefault();
@@ -19,10 +21,18 @@ function Register(props) {
       setErrorMessage('Password and Confirm Password do not match.');
       return;
     }
+    if (!recaptchaResponse) {
+      alert('Please click the reCAPTCHA checkbox.');
+      return;
+    }
 
     axios.post(
       `${config.API_ROOT}/api/pomodoro/users/register`,
-      {username, password},
+      {
+        username,
+        password,
+        'g-recaptcha-response': recaptchaResponse
+      },
       {withCredentials: true}
     ).then((res) => {
       if (res.status === 200) {
@@ -66,6 +76,12 @@ function Register(props) {
           </Form.Field>
 
           {errorMessage && <Message error>{errorMessage}</Message>}
+
+          <Recaptcha
+            sitekey={process.env.REACT_APP_RECAPTCHA_SITE_KEY}
+            verifyCallback={(gResponse) => setRecaptchaResponse(gResponse)}
+            expiredCallback={() => setRecaptchaResponse(null)}
+          />
 
           <Form.Button primary type="submit">Register</Form.Button>
         </Form>

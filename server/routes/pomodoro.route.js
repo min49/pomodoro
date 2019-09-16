@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const {validationResult} = require('express-validator');
+const request = require('request');
 
+const config = require('../config');
 const ValidatorGenerator = require('./utils/ValidatorGenerator');
 const {sessionsSchemaObj} = require('../models/sessions');
 const {tasksSchemaObj} = require('../models/tasks');
@@ -51,6 +53,7 @@ router.patch('/sessions/finish',
 
 router.get('/users/current', usersController.getLoggedInUser);
 router.post('/users/register',
+  checkRecaptcha,
   ValidatorGenerator.forSchema(usersSchemaObj, ['username', 'password']),
   ensureValidRequest,
   usersController.registerUser,
@@ -63,6 +66,7 @@ router.patch('/users/changepassword',
   usersController.changePassword);
 
 router.post('/login',
+  checkRecaptcha,
   ValidatorGenerator.forSchema(usersSchemaObj, ['username', 'password']),
   ensureValidRequest,
   passport.authenticate('local'),
@@ -86,6 +90,25 @@ function ensureValidRequest(req, res, next) {
   } else {
     return res.status(422).json({errors: errors.array()});
   }
+}
+
+function checkRecaptcha(req, res, next) {
+  if (!req.body['g-recaptcha-response']) {
+    return res.status(422).json({errorMessage: 'reCaptcha validation failed.'});
+  }
+
+  let recaptchaUrl = `https://www.google.com/recaptcha/api/siteverify?`;
+  recaptchaUrl += `secret=${config.RECAPTCHA_SECRET}&`;
+  recaptchaUrl += `response=${req.body['g-recaptcha-response']}&`;
+  recaptchaUrl += `remoteip=${req.connection.remoteAddress}`;
+  request.post(recaptchaUrl, (error, response, body) => {
+    const result = JSON.parse(body);
+    if (result.success) {
+      next();
+    } else {
+      return res.status(422).json({errorMessage: 'reCaptcha validation failed.'});
+    }
+  });
 }
 
 module.exports = router;
